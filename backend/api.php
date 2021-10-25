@@ -29,6 +29,19 @@ function db_get_index_by_id(&$entries, $id) {
     return -1;
 }
 
+function db_insert_with_auto_id(&$entries, $new_entry) {
+    if (sizeof($entries) == 0)
+        $entries = array();
+
+    do {
+        $id = rand();
+    } while((db_get_index_by_id($entries, $id) != -1) || ($id == 0));
+
+    $new_entry['id'] = $id;
+    array_push($entries, $new_entry);
+    return $id;
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 
 function users_list() {
@@ -39,7 +52,22 @@ function users_list() {
 }
 
 function users_add() {
-    echo("User added!\n");
+    global $USERS_FILENAME;
+
+    $name = $_POST['name'];
+    $phone = $_POST['phone'];
+
+    if (!isset($name) || !isset($phone))
+        fatal_error("Bad parameter(s)!");
+
+    $new_user['name'] = $name;
+    $new_user['phone'] = $phone;
+
+    $users = db_load($USERS_FILENAME);
+    $id = db_insert_with_auto_id($users, $new_user);
+    db_save($USERS_FILENAME, $users);
+
+    echo("$id");
 }
 
 function users_remove() {
