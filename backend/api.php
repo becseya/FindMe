@@ -10,6 +10,27 @@ function fatal_error($description) {
 
 // --------------------------------------------------------------------------------------------------------------------
 
+function db_load($path) {
+    return json_decode(file_get_contents($path), true);
+}
+
+function db_save($path, $entries) {
+    $fp = fopen($path, 'w');
+    fwrite($fp, json_encode($entries));
+    fclose($fp);
+}
+
+function db_get_index_by_id(&$entries, $id) {
+    foreach ($entries as $index => $entry) {
+        if ($entry['id'] == $id)
+            return $index;
+    }
+
+    return -1;
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 function users_list() {
     global $USERS_FILENAME;
 
@@ -22,7 +43,22 @@ function users_add() {
 }
 
 function users_remove() {
-    echo("User removed!\n");
+    global $USERS_FILENAME;
+
+    $id = $_POST['id'];
+
+    if (!isset($id) || !is_numeric($id))
+        fatal_error("Bad or missing 'id' parameter!");
+
+    $users = db_load($USERS_FILENAME);
+    $idx = db_get_index_by_id($users, $id);
+
+    if ($idx < 0)
+        fatal_error("User with id $id not found!");
+
+    array_splice($users, $idx, 1);
+    db_save($USERS_FILENAME, $users);
+    echo("OK");
 }
 
 // --------------------------------------------------------------------------------------------------------------------
