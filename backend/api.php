@@ -1,5 +1,7 @@
 <?php
 
+$USERS_FILENAME = 'users.json';
+
 function fatal_error($description) {
     http_response_code(400);
     echo("$description\n");
@@ -9,7 +11,10 @@ function fatal_error($description) {
 // --------------------------------------------------------------------------------------------------------------------
 
 function users_list() {
-    echo("Listing users...\n");
+    global $USERS_FILENAME;
+
+    header('Content-Type: application/json; charset=utf-8');
+    echo(file_get_contents($USERS_FILENAME));
 }
 
 function users_add() {
