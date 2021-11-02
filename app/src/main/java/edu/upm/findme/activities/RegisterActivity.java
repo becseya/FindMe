@@ -8,6 +8,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import edu.upm.findme.R;
+import edu.upm.findme.utility.AsyncHttpClient;
+import okhttp3.FormBody;
+import okhttp3.RequestBody;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -24,6 +27,14 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void onBtnSubmit(View view) {
-        Toast.makeText(this, txtName.getText().toString() + " " + txtPhone.getText().toString(), Toast.LENGTH_SHORT).show();
+        AsyncHttpClient client = new AsyncHttpClient();
+
+        RequestBody requestBody = new FormBody.Builder()
+                .add("name", txtName.getText().toString())
+                .add("phone", txtPhone.getText().toString())
+                .build();
+
+        client.post("https://findme.becsengo.hu/api.php?command=user-add", requestBody, (success, payload) ->
+                Toast.makeText(RegisterActivity.this, (success ? "OK " : "ERROR ") + payload, Toast.LENGTH_SHORT).show());
     }
 }
