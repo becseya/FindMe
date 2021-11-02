@@ -6,7 +6,7 @@ import android.os.Bundle;
 
 import edu.upm.findme.R;
 
-public class MainActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
