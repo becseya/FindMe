@@ -1,8 +1,10 @@
-package edu.upm.findme;
+package edu.upm.findme.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import edu.upm.findme.R;
 
 public class MainActivity extends AppCompatActivity {
 
