@@ -8,11 +8,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import edu.upm.findme.R;
-import edu.upm.findme.utility.AsyncHttpClient;
-import okhttp3.FormBody;
-import okhttp3.RequestBody;
+import edu.upm.findme.model.User;
+import edu.upm.findme.utility.ApiClient;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity implements ApiClient.FailureHandler {
+
+    final ApiClient api = new ApiClient(this);
 
     TextView txtName;
     TextView txtPhone;
@@ -27,14 +28,15 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void onBtnSubmit(View view) {
-        AsyncHttpClient client = new AsyncHttpClient();
+        User user = new User(0, txtName.getText().toString(), txtPhone.getText().toString());
 
-        RequestBody requestBody = new FormBody.Builder()
-                .add("name", txtName.getText().toString())
-                .add("phone", txtPhone.getText().toString())
-                .build();
+        api.registerUser(user, (id) -> {
+            Toast.makeText(RegisterActivity.this, "User added with id: " + id, Toast.LENGTH_SHORT).show();
+        });
+    }
 
-        client.post("https://findme.becsengo.hu/api.php?command=user-add", requestBody, (success, payload) ->
-                Toast.makeText(RegisterActivity.this, (success ? "OK " : "ERROR ") + payload, Toast.LENGTH_SHORT).show());
+    @Override
+    public void onApiFailure(String errorDescription) {
+        Toast.makeText(RegisterActivity.this, "API error: " + errorDescription, Toast.LENGTH_SHORT).show();
     }
 }
