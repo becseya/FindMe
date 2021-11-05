@@ -13,6 +13,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FindMe">
         <activity
+            android:name=".activities.MenuActivity"
+            android:label="@string/title_menu"
+            android:exported="true" />
+        <activity
             android:name=".activities.RegisterActivity"
             android:exported="true">
             <intent-filter>

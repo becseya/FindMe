@@ -1,5 +1,6 @@
 package edu.upm.findme.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -25,26 +26,31 @@ public class RegisterActivity extends AppCompatActivity implements ApiClient.Fai
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        if (userInfo.isUserIdSet())
+            jumpToMenu();
+
         txtName = findViewById(R.id.txtName);
         txtPhone = findViewById(R.id.txtPhone);
     }
 
     public void onBtnSubmit(View view) {
-        if (userInfo.isUserIdSet()) {
-            Toast.makeText(RegisterActivity.this, "ALREADY REGISTERED! " + userInfo.getUserId(), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         User user = new User(0, txtName.getText().toString(), txtPhone.getText().toString());
 
         api.registerUser(user, (id) -> {
             userInfo.setUserId(id);
-            Toast.makeText(RegisterActivity.this, "User added with id: " + id, Toast.LENGTH_SHORT).show();
+            jumpToMenu();
         });
     }
 
     @Override
     public void onApiFailure(String errorDescription) {
         Toast.makeText(RegisterActivity.this, "API error: " + errorDescription, Toast.LENGTH_SHORT).show();
+    }
+
+    void jumpToMenu() {
+        Intent intent = new Intent(this, MenuActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 }
