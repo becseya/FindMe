@@ -5,17 +5,21 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import edu.upm.findme.App;
 import edu.upm.findme.AppEvent;
 import edu.upm.findme.R;
+import edu.upm.findme.model.User;
+import edu.upm.findme.utility.ApiClient;
 import edu.upm.findme.utility.MenuManager;
 
 
-public class MenuActivity extends AppCompatActivity implements App.MortalObserver {
+public class MenuActivity extends AppCompatActivity implements App.MortalObserver, ApiClient.FailureHandler {
 
+    final ApiClient api = new ApiClient(this);
     App app;
     MenuManager menuManager;
     TextView lblUnreadMessages;
@@ -29,9 +33,18 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         lblUnreadMessages = findViewById(R.id.lblUnreadMessages);
         menuManager = new MenuManager(this, app);
 
-        // Services are protected again starting twice internally
-        app.mqtt.start();
-        app.stepSensor.start();
+        api.listUsers((users) -> {
+            String name = "";
+            for (User u : users) {
+                if (u.getId() == app.userInfo.getUserId())
+                    name = u.getName();
+            }
+            Toast.makeText(this, "Hello, " + name + "!\nNumber of users: " + users.size(), Toast.LENGTH_SHORT).show();
+
+            // Services are protected against starting twice internally
+            app.mqtt.start();
+            app.stepSensor.start();
+        });
     }
 
     public void onBtnMessages(View view) {
@@ -67,5 +80,10 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
             lblUnreadMessages.setText(String.valueOf(app.mqtt.getNumberOfUnreadMessages()));
         } else
             lblUnreadMessages.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onApiFailure(String errorDescription) {
+        Toast.makeText(this, "API error: " + errorDescription, Toast.LENGTH_SHORT).show();
     }
 }
