@@ -8,16 +8,15 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.List;
-
 import edu.upm.findme.App;
 import edu.upm.findme.AppEvent;
 import edu.upm.findme.R;
-import edu.upm.findme.model.Message;
+import edu.upm.findme.model.User;
 import edu.upm.findme.utility.ApiClient;
 
-public class MenuActivity extends AppCompatActivity implements App.MortalObserver {
+public class MenuActivity extends AppCompatActivity implements App.MortalObserver, ApiClient.FailureHandler {
 
+    final ApiClient api = new ApiClient(this);
     App app;
     TextView lblUnreadMessages;
 
@@ -29,7 +28,15 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         app = ((App) getApplicationContext()).initWithObserver(this);
         lblUnreadMessages = findViewById(R.id.lblUnreadMessages);
 
-        app.mqtt.start();
+        api.listUsers((users) -> {
+            String name = "";
+            for (User u : users) {
+                if (u.getId() == app.userInfo.getUserId())
+                    name = u.getName();
+            }
+            toast("Hello, " + name + "!\nNumber of users: " + users.size());
+            app.mqtt.start();
+        });
     }
 
     public void onBtnMessages(View view) {
@@ -58,5 +65,10 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
             lblUnreadMessages.setText("" + app.mqtt.getNumberOfUnreadMessages());
         } else
             lblUnreadMessages.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onApiFailure(String errorDescription) {
+        toast("API error: " + errorDescription);
     }
 }
