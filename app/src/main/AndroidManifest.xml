@@ -22,8 +22,8 @@
             android:parentActivityName=".activities.MenuActivity" />
         <activity
             android:name=".activities.MenuActivity"
-            android:label="@string/title_menu"
-            android:exported="true" />
+            android:exported="true"
+            android:label="@string/title_menu" />
         <activity
             android:name=".activities.RegisterActivity"
             android:exported="true">
@@ -33,6 +33,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service android:name="org.eclipse.paho.android.service.MqttService" />
     </application>
 

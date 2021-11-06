@@ -4,17 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.util.List;
 
 import edu.upm.findme.App;
 import edu.upm.findme.AppEvent;
 import edu.upm.findme.R;
-import edu.upm.findme.model.Message;
-import edu.upm.findme.utility.ApiClient;
 
 public class MenuActivity extends AppCompatActivity implements App.MortalObserver {
 
@@ -48,14 +43,10 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         updateUnreadMessages();
     }
 
-    private void toast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
     private void updateUnreadMessages() {
         if (app.mqtt.getNumberOfUnreadMessages() > 0) {
             lblUnreadMessages.setVisibility(View.VISIBLE);
-            lblUnreadMessages.setText("" + app.mqtt.getNumberOfUnreadMessages());
+            lblUnreadMessages.setText(String.valueOf(app.mqtt.getNumberOfUnreadMessages()));
         } else
             lblUnreadMessages.setVisibility(View.INVISIBLE);
     }

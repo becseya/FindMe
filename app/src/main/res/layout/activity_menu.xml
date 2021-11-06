@@ -41,4 +41,5 @@
             app:layout_constraintStart_toEndOf="@+id/btnOpenMessages"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

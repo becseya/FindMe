@@ -16,7 +16,7 @@ public class UserInfoManager {
 
     private final Context context;
     private boolean hasBeenLoaded = false;
-    private int userId = ID_NULL;
+    private int userId;
 
     public UserInfoManager(Context context) {
         this.context = context;
@@ -49,8 +49,8 @@ public class UserInfoManager {
         return userId;
     }
 
-    public void setUserId(int id) {
-        userId = id;
+    public void setUserId(int userId) {
+        this.userId = userId;
         save();
     }
 

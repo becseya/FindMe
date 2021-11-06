@@ -27,7 +27,6 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
         client = new PersistentSessionMqttClient(appContext, this, userId);
         this.observer = observer;
         this.userId = userId;
-
     }
 
     public boolean isConnected() {
