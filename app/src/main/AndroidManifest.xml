@@ -16,6 +16,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FindMe">
         <activity
+            android:name=".activities.StepsActivity"
+            android:exported="true"
+            android:label="@string/title_steps"
+            android:parentActivityName=".activities.MenuActivity" />
+        <activity
             android:name=".activities.MessengerActivity"
             android:exported="true"
             android:label="@string/title_messenger"

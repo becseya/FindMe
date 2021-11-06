@@ -31,6 +31,10 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         startActivity(new Intent(this, MessengerActivity.class));
     }
 
+    public void onBtnSteps(View view) {
+        startActivity(new Intent(this, StepsActivity.class));
+    }
+
     @Override
     public void onGlobalEvent(AppEvent.Type e) {
         if (e == AppEvent.Type.MEW_MESSAGE)
