@@ -50,24 +50,26 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
     }
 
     public void sendMessage(Message msg) {
-        client.publishMessage(TOPIC_MESSAGE + msg.getSenderId(), msg.getContent(), 2);
+        client.publishMessage(TOPIC_MESSAGE + msg.getSenderId(), msg.getContent(), 2, false);
     }
 
     @Override
     public void onMessage(String topic, String payload) {
         try {
+            // Always take care to increase numberOfUnreadMessages after possible exception, but before sending the event
             if (topic.startsWith(TOPIC_MESSAGE)) {
-                // Parsing can throw exception
-                String idAsString = topic.split("/")[1];
-                int id = Integer.parseInt(idAsString);
-
+                messages.add(new Message(getUserIdByTopic(topic), payload));
                 numberOfUnreadMessages++;
-                messages.add(new Message(id, payload));
                 observer.onGlobalEvent(AppEvent.Type.MEW_MESSAGE);
             }
         } catch (Exception e) {
             Log.d(LOG_TAG, "Error during message parsing");
         }
+    }
+
+    private int getUserIdByTopic(String topic) throws NumberFormatException, ArrayIndexOutOfBoundsException {
+        String idAsString = topic.split("/")[1];
+        return Integer.parseInt(idAsString);
     }
 
     @Override
