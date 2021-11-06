@@ -5,41 +5,37 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.List;
+
+import edu.upm.findme.AppEvent;
 import edu.upm.findme.R;
+import edu.upm.findme.model.Message;
 import edu.upm.findme.utility.ApiClient;
-import edu.upm.findme.utility.PersistentSessionMqttClient;
+import edu.upm.findme.utility.MqttTalker;
 import edu.upm.findme.utility.UserInfoManager;
 
-public class MenuActivity extends AppCompatActivity implements PersistentSessionMqttClient.EventHandler {
+public class MenuActivity extends AppCompatActivity {
 
     final UserInfoManager userInfo = new UserInfoManager(this);
-    PersistentSessionMqttClient mqtt;
+    MqttTalker mqtt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-        mqtt = new PersistentSessionMqttClient(getApplicationContext(), this, userInfo.getUserId());
-        mqtt.connect();
-    }
+        mqtt = new MqttTalker(getApplicationContext(), new AppEvent.Observer() {
+            @Override
+            public void onGlobalEvent(AppEvent.Type e) {
+                if (e == AppEvent.Type.MEW_MESSAGE) {
+                    List<Message> messages = mqtt.getMessages();
+                    Message lastMessage = messages.get(messages.size() - 1);
+                    toast("MSG: " + lastMessage.getContent() + " @ " + lastMessage.getSenderId());
+                }
+            }
+        }, userInfo.getUserId());
 
-    @Override
-    public void onMessage(String topic, String payload) {
-        toast("MSG: " + payload + " @ " + topic);
-    }
-
-    @Override
-    public void onError(String errorDescription) {
-        toast("MQTT error: " + errorDescription);
-    }
-
-    @Override
-    public void onConnectionStateChange(boolean isConnected, String optionalInfo) {
-        if (isConnected)
-            mqtt.subscribe("messages/#", 2);
-        else
-            toast("MQTT connection error " + (optionalInfo != null ? optionalInfo : ""));
+        mqtt.start();
     }
 
     private void toast(String message) {
