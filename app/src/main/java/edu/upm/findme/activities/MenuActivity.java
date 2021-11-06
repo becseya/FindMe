@@ -1,6 +1,8 @@
 package edu.upm.findme.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +27,10 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         app = ((App) getApplicationContext()).initWithObserver(this);
 
         app.mqtt.start();
+    }
+
+    public void onBtnMessages(View view) {
+        startActivity(new Intent(this, MessengerActivity.class));
     }
 
     @Override

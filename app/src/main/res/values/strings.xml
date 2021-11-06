@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">FindMe</string>
     <string name="title_menu">Menu</string>
+    <string name="title_messenger">Messages</string>
+    <string name="btn_messages">Messages</string>
+    <string name="default_unread_msg_count">0</string>
 </resources>

@@ -6,4 +6,39 @@
     android:layout_height="match_parent"
     tools:context=".activities.MenuActivity">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/conMessages"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/btnOpenMessages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-15dp"
+            android:onClick="onBtnMessages"
+            android:text="@string/btn_messages"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lblUnreadMessages" />
+
+        <TextView
+            android:id="@+id/lblUnreadMessages"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="-15dp"
+            android:background="@android:color/holo_red_dark"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            android:text="@string/default_unread_msg_count"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:translationZ="90dp"
+            android:visibility="invisible"
+            app:layout_constraintStart_toEndOf="@+id/btnOpenMessages"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
