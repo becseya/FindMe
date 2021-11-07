@@ -73,11 +73,11 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
                 messages.add(new Message(getUserIdByTopic(topic), payload));
                 numberOfUnreadMessages++;
                 observer.onGlobalEvent(AppEvent.Type.MEW_MESSAGE);
-            }
-            if (topic.startsWith(TOPIC_STEPS)) {
+            } else if (topic.startsWith(TOPIC_STEPS)) {
                 int id = getUserIdByTopic(topic);
-                int steps = Integer.parseInt(payload);
-                this.steps.put(id, steps);
+                int stepsTaken = Integer.parseInt(payload);
+
+                steps.put(id, stepsTaken);
                 observer.onGlobalEvent(AppEvent.Type.STEP_SCORES_CHANGED);
             }
         } catch (Exception e) {
