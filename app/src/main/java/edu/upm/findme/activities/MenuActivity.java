@@ -1,6 +1,7 @@
 package edu.upm.findme.activities;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import edu.upm.findme.App;
 import edu.upm.findme.AppEvent;
 import edu.upm.findme.R;
+import edu.upm.findme.utility.Locator;
 import edu.upm.findme.utility.MenuManager;
 
 
@@ -20,6 +22,7 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
     App app;
     MenuManager menuManager;
     TextView lblUnreadMessages;
+    Locator locator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,9 +31,11 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
 
         app = ((App) getApplicationContext()).initWithObserver(this);
         lblUnreadMessages = findViewById(R.id.lblUnreadMessages);
-        menuManager = new MenuManager(this, checked -> {
-            Toast.makeText(this, "SWITCH: " + checked, Toast.LENGTH_SHORT).show();
+        locator = new Locator(this, (location) -> {
+            if (location != null)
+                Toast.makeText(this, "LOC: " + location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show();
         });
+        menuManager = new MenuManager(this, locator);
 
         // Services are protected again starting twice internally
         app.mqtt.start();
