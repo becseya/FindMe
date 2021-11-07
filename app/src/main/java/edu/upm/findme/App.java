@@ -7,12 +7,14 @@ import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 
 import edu.upm.findme.utility.MqttTalker;
+import edu.upm.findme.utility.StepSensor;
 import edu.upm.findme.utility.UserInfoManager;
 
-public class App extends Application implements AppEvent.Observer {
+public class App extends Application implements AppEvent.Observer, StepSensor.SensorInterface {
 
     public UserInfoManager userInfo;
     public MqttTalker mqtt;
+    public StepSensor stepSensor;
 
     boolean hasBeenInitialized;
     MortalObserver currentObserver = null;
@@ -21,6 +23,7 @@ public class App extends Application implements AppEvent.Observer {
         if (!hasBeenInitialized) {
             userInfo = new UserInfoManager(this);
             mqtt = new MqttTalker(this, this, userInfo.getUserId());
+            stepSensor = new StepSensor(this, this);
             hasBeenInitialized = true;
         }
         return this;
@@ -44,6 +47,18 @@ public class App extends Application implements AppEvent.Observer {
     public void onGlobalEvent(AppEvent.Type e) {
         if (currentObserver != null)
             currentObserver.onGlobalEvent(e);
+    }
+
+    @Override
+    public int loadStepCount() {
+        return userInfo.getTotalSteps();
+    }
+
+    @Override
+    public void stepCountChanged(int stepsTaken) {
+        mqtt.publishStepsTaken(stepsTaken);
+        onGlobalEvent(AppEvent.Type.STEP_TAKEN_BY_USER);
+        userInfo.setTotalSteps(stepsTaken);
     }
 
     public interface MortalObserver extends AppEvent.Observer, LifecycleOwner {

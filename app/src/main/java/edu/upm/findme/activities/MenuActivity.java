@@ -24,7 +24,9 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         app = ((App) getApplicationContext()).initWithObserver(this);
         lblUnreadMessages = findViewById(R.id.lblUnreadMessages);
 
+        // Services are protected again starting twice internally
         app.mqtt.start();
+        app.stepSensor.start();
     }
 
     public void onBtnMessages(View view) {
