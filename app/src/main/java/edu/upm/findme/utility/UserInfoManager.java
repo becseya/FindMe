@@ -18,8 +18,8 @@ public class UserInfoManager {
     private boolean hasBeenLoaded = false;
     private int userId = ID_NULL;
 
-    public UserInfoManager(Context activity) {
-        this.context = activity;
+    public UserInfoManager(Context context) {
+        this.context = context;
     }
 
     private SharedPreferences getPreferences() {

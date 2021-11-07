@@ -9,14 +9,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import edu.upm.findme.R;
+import edu.upm.findme.App;
 import edu.upm.findme.model.User;
 import edu.upm.findme.utility.ApiClient;
-import edu.upm.findme.utility.UserInfoManager;
 
 public class RegisterActivity extends AppCompatActivity implements ApiClient.FailureHandler {
 
     final ApiClient api = new ApiClient(this);
-    final UserInfoManager userInfo = new UserInfoManager(this);
+    App app;
 
     TextView txtName;
     TextView txtPhone;
@@ -25,8 +25,9 @@ public class RegisterActivity extends AppCompatActivity implements ApiClient.Fai
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        app = ((App) getApplicationContext()).init();
 
-        if (userInfo.isUserIdSet())
+        if (app.userInfo.isUserIdSet())
             jumpToMenu();
 
         txtName = findViewById(R.id.txtName);
@@ -37,7 +38,7 @@ public class RegisterActivity extends AppCompatActivity implements ApiClient.Fai
         User user = new User(0, txtName.getText().toString(), txtPhone.getText().toString());
 
         api.registerUser(user, (id) -> {
-            userInfo.setUserId(id);
+            app.userInfo.setUserId(id);
             jumpToMenu();
         });
     }

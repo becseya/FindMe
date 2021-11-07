@@ -1,10 +1,13 @@
 package edu.upm.findme.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import edu.upm.findme.App;
+import edu.upm.findme.AppEvent;
 import edu.upm.findme.R;
 import edu.upm.findme.model.User;
 import edu.upm.findme.utility.ApiClient;
