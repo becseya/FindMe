@@ -80,11 +80,12 @@ public class PersistentSessionMqttClient implements MqttCallbackExtended {
         }
     }
 
-    public void publishMessage(String topic, String payload, int qos) {
+    public void publishMessage(String topic, String payload, int qos, boolean retain) {
         try {
             MqttMessage message = new MqttMessage();
             message.setPayload(payload.getBytes());
             message.setQos(qos);
+            message.setRetained(retain);
             client.publish(TOPIC_BASE + topic, message);
         } catch (Exception e) {
             handler.onError("Failed to publish: " + e.toString());

@@ -16,13 +16,23 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
+            android:id="@+id/btnSteps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onBtnSteps"
+            android:text="@string/btn_steps"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
             android:id="@+id/btnOpenMessages"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="-15dp"
             android:onClick="onBtnMessages"
             android:text="@string/btn_messages"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/btnSteps"
             app:layout_constraintTop_toBottomOf="@+id/lblUnreadMessages" />
 
         <TextView
@@ -41,4 +51,5 @@
             app:layout_constraintStart_toEndOf="@+id/btnOpenMessages"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,7 +4,9 @@ import android.content.Context;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.upm.findme.AppEvent;
 import edu.upm.findme.model.Message;
@@ -12,6 +14,7 @@ import edu.upm.findme.model.Message;
 public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
     final static String LOG_TAG = "MQTT_ERROR";
     final static String TOPIC_MESSAGE = "messages/";
+    final static String TOPIC_STEPS = "steps/";
 
     final PersistentSessionMqttClient client;
     final AppEvent.Observer observer;
@@ -22,12 +25,12 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
     boolean hasBeenStarted = false;
     boolean connected = false;
     List<Message> messages = new ArrayList<>();
+    Map<Integer, Integer> steps = new HashMap<>();
 
     public MqttTalker(Context appContext, AppEvent.Observer observer, int userId) {
         client = new PersistentSessionMqttClient(appContext, this, userId);
         this.observer = observer;
         this.userId = userId;
-
     }
 
     public boolean isConnected() {
@@ -50,25 +53,41 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
         return messages;
     }
 
+    public Map<Integer, Integer> getSteps() {
+        return steps;
+    }
+
     public void sendMessage(Message msg) {
-        client.publishMessage(TOPIC_MESSAGE + msg.getSenderId(), msg.getContent(), 2);
+        client.publishMessage(TOPIC_MESSAGE + msg.getSenderId(), msg.getContent(), 2, false);
+    }
+
+    public void publishStepsTaken(int steps) {
+        client.publishMessage(TOPIC_STEPS + userId, String.valueOf(steps), 1, true);
     }
 
     @Override
     public void onMessage(String topic, String payload) {
         try {
             if (topic.startsWith(TOPIC_MESSAGE)) {
-                // Parsing can throw exception
-                String idAsString = topic.split("/")[1];
-                int id = Integer.parseInt(idAsString);
-
+                // Always take care to increase numberOfUnreadMessages after possible exception, but before sending the event
+                messages.add(new Message(getUserIdByTopic(topic), payload));
                 numberOfUnreadMessages++;
-                messages.add(new Message(id, payload));
                 observer.onGlobalEvent(AppEvent.Type.MEW_MESSAGE);
+            }
+            if (topic.startsWith(TOPIC_STEPS)) {
+                int id = getUserIdByTopic(topic);
+                int steps = Integer.parseInt(payload);
+                this.steps.put(id, steps);
+                observer.onGlobalEvent(AppEvent.Type.STEP_SCORES_CHANGED);
             }
         } catch (Exception e) {
             Log.d(LOG_TAG, "Error during message parsing");
         }
+    }
+
+    private int getUserIdByTopic(String topic) throws NumberFormatException, ArrayIndexOutOfBoundsException {
+        String idAsString = topic.split("/")[1];
+        return Integer.parseInt(idAsString);
     }
 
     @Override
@@ -83,6 +102,7 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
 
         if (isConnected && !hasBeenSubscribedToMessages) {
             client.subscribe(TOPIC_MESSAGE + "#", 2);
+            client.subscribe(TOPIC_STEPS + "#", 0);
             hasBeenSubscribedToMessages = false;
         }
 
