@@ -4,10 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.ArrayList;
 
 import edu.upm.findme.App;
 import edu.upm.findme.AppEvent;
@@ -24,6 +28,8 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
     MenuManager menuManager;
     TextView lblUnreadMessages;
 
+    ListView listView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,6 +38,23 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         app = ((App) getApplicationContext()).initWithObserver(this);
         lblUnreadMessages = findViewById(R.id.lblUnreadMessages);
         menuManager = new MenuManager(this, app);
+        listView = findViewById(R.id.listViewUser);
+
+        ArrayList<String> arrayList = new ArrayList<>();
+        arrayList.add("user1");
+        arrayList.add("user2");
+        arrayList.add("user3");
+        arrayList.add("user4");
+        arrayList.add("user5");
+        arrayList.add("user6");
+        arrayList.add("user7");
+        arrayList.add("user8");
+        arrayList.add("user9");
+        arrayList.add("user10");
+
+
+        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, arrayList);
+        listView.setAdapter(arrayAdapter);
 
         api.listUsers((users) -> {
             String name = "";
