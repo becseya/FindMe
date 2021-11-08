@@ -59,6 +59,10 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         startActivity(new Intent(this, StepsActivity.class));
     }
 
+    public void onBtnMaps(View view) {
+        startActivity(new Intent(this, MapsActivity.class));
+    }
+
     @Override
     public void onGlobalEvent(AppEvent.Type e) {
         menuManager.onGlobalEvent(e);
