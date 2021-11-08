@@ -5,6 +5,7 @@ public class AppEvent {
         MEW_MESSAGE,
         STEP_SCORES_CHANGED,
         STEP_TAKEN_BY_USER,
+        LOCATION_DATABASE_CHANGED,
         MQTT_CONNECTION_CHANGE
     }
 

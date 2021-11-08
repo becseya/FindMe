@@ -2,6 +2,7 @@ package edu.upm.findme.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
@@ -10,10 +11,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import edu.upm.findme.App;
 import edu.upm.findme.AppEvent;
 import edu.upm.findme.R;
+import edu.upm.findme.utility.MenuManager;
+
 
 public class MenuActivity extends AppCompatActivity implements App.MortalObserver {
 
     App app;
+    MenuManager menuManager;
     TextView lblUnreadMessages;
 
     @Override
@@ -23,6 +27,7 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
 
         app = ((App) getApplicationContext()).initWithObserver(this);
         lblUnreadMessages = findViewById(R.id.lblUnreadMessages);
+        menuManager = new MenuManager(this, app.locator);
 
         // Services are protected again starting twice internally
         app.mqtt.start();
@@ -47,6 +52,12 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
     protected void onResume() {
         super.onResume();
         updateUnreadMessages();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menuManager.onCreateOptionsMenu(menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     private void updateUnreadMessages() {

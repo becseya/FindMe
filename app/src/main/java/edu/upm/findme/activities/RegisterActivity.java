@@ -2,9 +2,7 @@ package edu.upm.findme.activities;
 
 import android.Manifest;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,35 +41,21 @@ public class RegisterActivity extends AppCompatActivity implements ApiClient.Fai
         super.onResume();
 
         if (app.userInfo.isUserIdSet()) {
-            permissionRequester.askIfNotHeld(PERM_STEP_SENSOR, (isGranted) -> {
-                if (isGranted)
-                    jumpToMenu();
-                else
-                    goToPermissionSettings();
+            permissionRequester.askAndGoToSettingIfDenied(PERM_STEP_SENSOR, () -> {
+                jumpToMenu();
             });
         }
     }
 
     public void onBtnSubmit(View view) {
-        permissionRequester.askIfNotHeld(PERM_STEP_SENSOR, (isGranted) -> {
-            if (isGranted) {
-                User user = new User(0, txtName.getText().toString(), txtPhone.getText().toString());
+        permissionRequester.askAndGoToSettingIfDenied(PERM_STEP_SENSOR, () -> {
+            User user = new User(0, txtName.getText().toString(), txtPhone.getText().toString());
 
-                api.registerUser(user, (id) -> {
-                    app.userInfo.setUserId(id);
-                    jumpToMenu();
-                });
-            } else
-                goToPermissionSettings();
+            api.registerUser(user, (id) -> {
+                app.userInfo.setUserId(id);
+                jumpToMenu();
+            });
         });
-    }
-
-    void goToPermissionSettings() {
-        Toast.makeText(RegisterActivity.this, "Permission required to proceed", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        Uri uri = Uri.fromParts("package", getPackageName(), null);
-        intent.setData(uri);
-        startActivity(intent);
     }
 
     @Override
