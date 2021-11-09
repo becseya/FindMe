@@ -11,12 +11,14 @@ import java.util.Map;
 
 import edu.upm.findme.AppEvent;
 import edu.upm.findme.model.Message;
+import edu.upm.findme.model.UserDetails;
 
 public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
     final static String LOG_TAG = "MQTT_ERROR";
     final static String TOPIC_MESSAGE = "messages/";
     final static String TOPIC_STEPS = "steps/";
     final static String TOPIC_LOCATION = "locations/";
+    final static String TOPIC_STATUS = "status/";
     final static String MESSAGE_FIELD_SEPARATOR = "+";
 
     final PersistentSessionMqttClient client;
@@ -27,9 +29,11 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
     boolean hasBeenSubscribedToMessages = false;
     boolean hasBeenStarted = false;
     boolean connected = false;
+    UserDetails.Status lastPublishedStatus = UserDetails.Status.OFFLINE;
     List<Message> messages = new ArrayList<>();
     Map<Integer, Integer> steps = new HashMap<>();
     Map<Integer, Location> locations = new HashMap<>();
+    Map<Integer, UserDetails.Status> statuses = new HashMap<>();
 
     public MqttTalker(Context appContext, AppEvent.Observer observer, int userId) {
         client = new PersistentSessionMqttClient(appContext, this, userId);
@@ -43,7 +47,12 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
 
     public void start() {
         if (!hasBeenStarted) {
-            client.connect();
+            PersistentSessionMqttClient.LastWillOptions lastWill = new PersistentSessionMqttClient.LastWillOptions();
+            lastWill.topic = TOPIC_STATUS + userId;
+            lastWill.payload = UserDetails.Status.OFFLINE.toString();
+            lastWill.qos = 1;
+            lastWill.retain = true;
+            client.connect(lastWill);
             hasBeenStarted = true;
         }
     }
@@ -63,6 +72,14 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
 
     public Map<Integer, Location> getLocations() {
         return locations;
+    }
+
+    public Map<Integer, UserDetails.Status> getStatuses() {
+        return statuses;
+    }
+
+    public UserDetails.Status getLastPublishedStatus() {
+        return lastPublishedStatus;
     }
 
     public void sendMessage(Message msg) {
@@ -98,6 +115,12 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
 
                 locations.put(id, location);
                 observer.onGlobalEvent(AppEvent.Type.LOCATION_DATABASE_CHANGED);
+            } else if (topic.startsWith(TOPIC_STATUS)) {
+                int id = getUserIdByTopic(topic);
+                UserDetails.Status status = UserDetails.getStatusFromString(payload);
+
+                statuses.put(id, status);
+                observer.onGlobalEvent(AppEvent.Type.STATUS_DATABASE_CHANGED);
             }
         } catch (Exception e) {
             Log.d(LOG_TAG, "Error during message parsing");
@@ -118,6 +141,11 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
         return location;
     }
 
+    public void publishUserStatus(UserDetails.Status status) {
+        lastPublishedStatus = status;
+        client.publishMessage(TOPIC_STATUS + userId, status.toString(), 1, true);
+    }
+
     @Override
     public void onError(String errorDescription) {
         Log.d(LOG_TAG, errorDescription);
@@ -128,10 +156,15 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
         if (optionalInfo != null)
             Log.d(LOG_TAG, optionalInfo);
 
-        if (isConnected && !hasBeenSubscribedToMessages) {
-            client.subscribe(TOPIC_MESSAGE + "#", 2);
-            client.subscribe(TOPIC_STEPS + "#", 0);
-            hasBeenSubscribedToMessages = false;
+        if (isConnected) {
+            publishUserStatus(UserDetails.Status.ONLINE);
+
+            if (!hasBeenSubscribedToMessages) {
+                client.subscribe(TOPIC_MESSAGE + "#", 2);
+                client.subscribe(TOPIC_STEPS + "#", 0);
+                client.subscribe(TOPIC_STATUS + "#", 0);
+                hasBeenSubscribedToMessages = false;
+            }
         }
 
         connected = isConnected;
