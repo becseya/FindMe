@@ -1,10 +1,13 @@
 package edu.upm.findme.utility;
 
 import android.content.Context;
+import android.location.Location;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.upm.findme.AppEvent;
 import edu.upm.findme.model.Message;
@@ -12,6 +15,9 @@ import edu.upm.findme.model.Message;
 public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
     final static String LOG_TAG = "MQTT_ERROR";
     final static String TOPIC_MESSAGE = "messages/";
+    final static String TOPIC_STEPS = "steps/";
+    final static String TOPIC_LOCATION = "locations/";
+    final static String MESSAGE_FIELD_SEPARATOR = "+";
 
     final PersistentSessionMqttClient client;
     final AppEvent.Observer observer;
@@ -22,12 +28,13 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
     boolean hasBeenStarted = false;
     boolean connected = false;
     List<Message> messages = new ArrayList<>();
+    Map<Integer, Integer> steps = new HashMap<>();
+    Map<Integer, Location> locations = new HashMap<>();
 
     public MqttTalker(Context appContext, AppEvent.Observer observer, int userId) {
         client = new PersistentSessionMqttClient(appContext, this, userId);
         this.observer = observer;
         this.userId = userId;
-
     }
 
     public boolean isConnected() {
@@ -50,25 +57,64 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
         return messages;
     }
 
+    public Map<Integer, Integer> getSteps() {
+        return steps;
+    }
+
+    public Map<Integer, Location> getLocations() {
+        return locations;
+    }
+
     public void sendMessage(Message msg) {
-        client.publishMessage(TOPIC_MESSAGE + msg.getSenderId(), msg.getContent(), 2);
+        client.publishMessage(TOPIC_MESSAGE + msg.getSenderId(), msg.getContent(), 2, false);
+    }
+
+    public void publishStepsTaken(int steps) {
+        client.publishMessage(TOPIC_STEPS + userId, String.valueOf(steps), 1, true);
+    }
+
+    public void publishLocation(Location location) {
+        String latLonString = location.getLatitude() + MESSAGE_FIELD_SEPARATOR + location.getLongitude();
+        client.publishMessage(TOPIC_LOCATION + userId, latLonString, 1, false);
     }
 
     @Override
     public void onMessage(String topic, String payload) {
         try {
             if (topic.startsWith(TOPIC_MESSAGE)) {
-                // Parsing can throw exception
-                String idAsString = topic.split("/")[1];
-                int id = Integer.parseInt(idAsString);
-
+                // Always take care to increase numberOfUnreadMessages after possible exception, but before sending the event
+                messages.add(new Message(getUserIdByTopic(topic), payload));
                 numberOfUnreadMessages++;
-                messages.add(new Message(id, payload));
                 observer.onGlobalEvent(AppEvent.Type.MEW_MESSAGE);
+            } else if (topic.startsWith(TOPIC_STEPS)) {
+                int id = getUserIdByTopic(topic);
+                int stepsTaken = Integer.parseInt(payload);
+
+                steps.put(id, stepsTaken);
+                observer.onGlobalEvent(AppEvent.Type.STEP_SCORES_CHANGED);
+            } else if (topic.startsWith(TOPIC_LOCATION)) {
+                int id = getUserIdByTopic(topic);
+                Location location = parseLocationMessage(payload);
+
+                observer.onGlobalEvent(AppEvent.Type.LOCATION_DATABASE_CHANGED);
             }
         } catch (Exception e) {
             Log.d(LOG_TAG, "Error during message parsing");
         }
+    }
+
+    private int getUserIdByTopic(String topic) throws NumberFormatException, ArrayIndexOutOfBoundsException {
+        String idAsString = topic.split("/")[1];
+        return Integer.parseInt(idAsString);
+    }
+
+    private Location parseLocationMessage(String message) throws NumberFormatException, ArrayIndexOutOfBoundsException {
+        Location location = new Location("");
+        String[] fields = message.split(MESSAGE_FIELD_SEPARATOR);
+
+        location.setLatitude(Integer.parseInt(fields[0]));
+        location.setLongitude(Integer.parseInt(fields[1]));
+        return location;
     }
 
     @Override
@@ -83,6 +129,7 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
 
         if (isConnected && !hasBeenSubscribedToMessages) {
             client.subscribe(TOPIC_MESSAGE + "#", 2);
+            client.subscribe(TOPIC_STEPS + "#", 0);
             hasBeenSubscribedToMessages = false;
         }
 

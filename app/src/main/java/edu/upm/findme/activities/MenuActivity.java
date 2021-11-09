@@ -60,4 +60,9 @@ public class MenuActivity extends AppCompatActivity implements ApiClient.Failure
     public void onApiFailure(String errorDescription) {
         Toast.makeText(this, "API error: " + errorDescription, Toast.LENGTH_SHORT).show();
     }
+
+    @Override
+    public void onApiFailure(String errorDescription) {
+        Toast.makeText(this, "API error: " + errorDescription, Toast.LENGTH_SHORT).show();
+    }
 }

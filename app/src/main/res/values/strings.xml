@@ -6,4 +6,6 @@
     <string name="default_unread_msg_count">0</string>
     <string name="type_your_message_here">Type your message here</string>
     <string name="btn_send">➡</string>
+    <string name="title_steps">Steps taken</string>
+    <string name="btn_steps">Steps</string>
 </resources>

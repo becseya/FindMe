@@ -3,20 +3,18 @@ package edu.upm.findme.utility;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleEventObserver;
-
 public class UserInfoManager {
 
     private static final String PREF_NAME = "userinfo_manager";
     private static final String KEY_USER_ID = "user_id";
+    private static final String KEY_TOTAL_STEPS = "total_steps";
 
     private static final int ID_NULL = 0;
 
     private final Context context;
     private boolean hasBeenLoaded = false;
-    private int userId = ID_NULL;
+    private int userId;
+    private int totalSteps;
 
     public UserInfoManager(Context context) {
         this.context = context;
@@ -29,6 +27,7 @@ public class UserInfoManager {
     private void load() {
         SharedPreferences pref = getPreferences();
         userId = pref.getInt(KEY_USER_ID, ID_NULL);
+        totalSteps = pref.getInt(KEY_TOTAL_STEPS, 0);
     }
 
     private void checkAndLoad() {
@@ -41,6 +40,7 @@ public class UserInfoManager {
     private void save() {
         SharedPreferences.Editor editor = getPreferences().edit();
         editor.putInt(KEY_USER_ID, userId);
+        editor.putInt(KEY_TOTAL_STEPS, totalSteps);
         editor.apply();
     }
 
@@ -49,8 +49,18 @@ public class UserInfoManager {
         return userId;
     }
 
-    public void setUserId(int id) {
-        userId = id;
+    public void setUserId(int userId) {
+        this.userId = userId;
+        save();
+    }
+
+    public int getTotalSteps() {
+        checkAndLoad();
+        return totalSteps;
+    }
+
+    public void setTotalSteps(int totalSteps) {
+        this.totalSteps = totalSteps;
         save();
     }
 
