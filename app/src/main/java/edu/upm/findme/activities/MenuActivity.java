@@ -27,7 +27,7 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
 
         app = ((App) getApplicationContext()).initWithObserver(this);
         lblUnreadMessages = findViewById(R.id.lblUnreadMessages);
-        menuManager = new MenuManager(this, app.locator);
+        menuManager = new MenuManager(this, app);
 
         // Services are protected again starting twice internally
         app.mqtt.start();
@@ -44,6 +44,7 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
 
     @Override
     public void onGlobalEvent(AppEvent.Type e) {
+        menuManager.onGlobalEvent(e);
         if (e == AppEvent.Type.MEW_MESSAGE)
             updateUnreadMessages();
     }
