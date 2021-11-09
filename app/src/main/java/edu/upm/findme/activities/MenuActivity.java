@@ -43,8 +43,7 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         userList.setLayoutManager(new LinearLayoutManager(this));
 
         api.listUsers((fetchedUsers) -> {
-            userAdapter.updateUsers(fetchedUsers);
-
+            userAdapter.updateUsers(fetchedUsers, app.mqtt.getStatuses());
             // Services are protected against starting twice internally
             app.mqtt.start();
             app.stepSensor.start();
@@ -64,12 +63,15 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         menuManager.onGlobalEvent(e);
         if (e == AppEvent.Type.MEW_MESSAGE)
             updateUnreadMessages();
+        if (e == AppEvent.Type.STATUS_DATABASE_CHANGED)
+            userAdapter.updateUserStatuses(app.mqtt.getStatuses());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         updateUnreadMessages();
+        userAdapter.updateUserStatuses(app.mqtt.getStatuses());
     }
 
     @Override
