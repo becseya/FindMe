@@ -7,6 +7,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 
+import edu.upm.findme.model.UserDetails;
 import edu.upm.findme.utility.Locator;
 import edu.upm.findme.utility.MqttTalker;
 import edu.upm.findme.utility.StepSensor;
@@ -67,10 +68,13 @@ public class App extends Application implements AppEvent.Observer, StepSensor.Se
 
     @Override
     public void onNewLocation(Location location) {
-        boolean locationIsRunning = (location != null);
+        UserDetails.Status newStatus = (locator.isRunning() ? UserDetails.Status.LIVE : UserDetails.Status.ONLINE);
 
-        if (locationIsRunning)
+        if (locator.isRunning())
             mqtt.publishLocation(location);
+
+        if (newStatus != mqtt.getLastPublishedStatus())
+            mqtt.publishUserStatus(newStatus);
     }
 
     public interface MortalObserver extends AppEvent.Observer, LifecycleOwner {

@@ -4,10 +4,26 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
-    <Switch
-        android:id="@+id/switchPosition"
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:paddingRight="10dp" />
+        android:orientation="horizontal"
+        android:layout_centerVertical="true">
+
+        <View
+            android:id="@+id/connectionStatus"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/circle_grey"/>
+
+        <Switch
+            android:id="@+id/switchPosition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@+id/connectionStatus"
+            android:paddingRight="10dp" />
+    </RelativeLayout>
+
 </RelativeLayout>

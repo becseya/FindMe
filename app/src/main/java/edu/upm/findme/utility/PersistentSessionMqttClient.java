@@ -1,6 +1,5 @@
 package edu.upm.findme.utility;
 
-import android.app.Activity;
 import android.content.Context;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -11,6 +10,8 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import java.nio.charset.StandardCharsets;
 
 public class PersistentSessionMqttClient implements MqttCallbackExtended {
     final static String SERVER_URI = "tcp://broker.hivemq.com";
@@ -28,10 +29,19 @@ public class PersistentSessionMqttClient implements MqttCallbackExtended {
     }
 
     public void connect() {
+        connect(null);
+    }
+
+    public void connect(LastWillOptions lastWill) {
         client.setCallback(this);
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
         mqttConnectOptions.setAutomaticReconnect(true);
         mqttConnectOptions.setCleanSession(false);
+
+        if (lastWill != null) {
+            mqttConnectOptions.setKeepAliveInterval(5);
+            mqttConnectOptions.setWill(TOPIC_BASE + lastWill.topic, lastWill.payload.getBytes(StandardCharsets.UTF_8), lastWill.qos, lastWill.retain);
+        }
 
         try {
             client.connect(mqttConnectOptions, null, new IMqttActionListener() {
@@ -99,7 +109,8 @@ public class PersistentSessionMqttClient implements MqttCallbackExtended {
 
     @Override
     public void connectionLost(Throwable cause) {
-        handler.onConnectionStateChange(false, cause.toString());
+        String causeStr = (cause != null) ? cause.toString() : null;
+        handler.onConnectionStateChange(false, causeStr);
     }
 
     @Override
@@ -117,5 +128,12 @@ public class PersistentSessionMqttClient implements MqttCallbackExtended {
         void onError(String errorDescription);
 
         void onConnectionStateChange(boolean isConnected, String optionalInfo);
+    }
+
+    public static class LastWillOptions {
+        public String topic;
+        public String payload;
+        public int qos;
+        public boolean retain;
     }
 }
