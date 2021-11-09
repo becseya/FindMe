@@ -68,10 +68,9 @@ public class App extends Application implements AppEvent.Observer, StepSensor.Se
 
     @Override
     public void onNewLocation(Location location) {
-        boolean locationIsRunning = (location != null);
-        UserDetails.Status newStatus = (locationIsRunning ? UserDetails.Status.LIVE : UserDetails.Status.ONLINE);
+        UserDetails.Status newStatus = (locator.isRunning() ? UserDetails.Status.LIVE : UserDetails.Status.ONLINE);
 
-        if (locationIsRunning)
+        if (locator.isRunning())
             mqtt.publishLocation(location);
 
         if (newStatus != mqtt.getLastPublishedStatus())

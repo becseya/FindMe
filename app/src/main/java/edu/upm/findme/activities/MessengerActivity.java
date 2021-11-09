@@ -3,6 +3,7 @@ package edu.upm.findme.activities;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,9 +16,11 @@ import edu.upm.findme.App;
 import edu.upm.findme.AppEvent;
 import edu.upm.findme.R;
 import edu.upm.findme.model.Message;
+import edu.upm.findme.utility.MenuManager;
 
 public class MessengerActivity extends AppCompatActivity implements App.MortalObserver {
 
+    MenuManager menuManager;
     TextView txtMessage;
     Button btnSend;
     App app;
@@ -30,6 +33,7 @@ public class MessengerActivity extends AppCompatActivity implements App.MortalOb
         app = ((App) getApplicationContext()).initWithObserver(this);
         txtMessage = findViewById(R.id.txtMessage);
         btnSend = findViewById(R.id.btnSend);
+        menuManager = new MenuManager(this, app);
 
         txtMessage.addTextChangedListener(new TextWatcher() {
             @Override
@@ -54,8 +58,15 @@ public class MessengerActivity extends AppCompatActivity implements App.MortalOb
 
     @Override
     public void onGlobalEvent(AppEvent.Type e) {
+        menuManager.onGlobalEvent(e);
         if (e == AppEvent.Type.MEW_MESSAGE)
             drawMessages();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menuManager.onCreateOptionsMenu(menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     void drawMessages() {

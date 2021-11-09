@@ -15,15 +15,19 @@ public class Locator extends LocationCallback implements MenuManager.SwitchState
 
     FusedLocationProviderClient locationClient;
     Locator.LocationHandler handler;
+    boolean running;
 
     public Locator(Context context, Locator.LocationHandler handler) {
         this.locationClient = LocationServices.getFusedLocationProviderClient(context);
         this.handler = handler;
+        this.running = false;
     }
 
     @SuppressLint("MissingPermission")
     @Override
     public void onSwitchChange(boolean gpsIsOn) {
+        this.running = gpsIsOn;
+
         if (gpsIsOn) {
             LocationRequest locationRequest = LocationRequest.create();
             locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -39,6 +43,10 @@ public class Locator extends LocationCallback implements MenuManager.SwitchState
     public void onLocationResult(LocationResult locationResult) {
         if (locationResult != null)
             handler.onNewLocation(locationResult.getLastLocation());
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 
     public interface LocationHandler {
