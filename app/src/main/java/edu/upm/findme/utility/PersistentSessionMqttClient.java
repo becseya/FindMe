@@ -1,6 +1,5 @@
 package edu.upm.findme.utility;
 
-import android.app.Activity;
 import android.content.Context;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -99,7 +98,8 @@ public class PersistentSessionMqttClient implements MqttCallbackExtended {
 
     @Override
     public void connectionLost(Throwable cause) {
-        handler.onConnectionStateChange(false, cause.toString());
+        String causeStr = (cause != null) ? cause.toString() : null;
+        handler.onConnectionStateChange(false, causeStr);
     }
 
     @Override

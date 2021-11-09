@@ -96,6 +96,7 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
                 int id = getUserIdByTopic(topic);
                 Location location = parseLocationMessage(payload);
 
+                locations.put(id, location);
                 observer.onGlobalEvent(AppEvent.Type.LOCATION_DATABASE_CHANGED);
             }
         } catch (Exception e) {
