@@ -6,42 +6,40 @@
     android:layout_height="match_parent"
     tools:context=".activities.MenuActivity">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:context=".MainActivity">
 
 
-
         <TextView
+            android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="List of Users"
-            android:id="@+id/textView5"
+            android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:text="List of Users" />
 
         <ScrollView
+            android:id="@+id/scrollViewUser"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/scrollViewUser"
             android:layout_below="@+id/textView5"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:fillViewport="true"
-            android:layout_alignParentEnd="true">
+            android:layout_alignParentBottom="true"
+            android:fillViewport="true">
 
             <ListView
                 android:id="@+id/listViewUser"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true">
-            </ListView>
+                android:layout_centerVertical="true"></ListView>
         </ScrollView>
 
     </RelativeLayout>
