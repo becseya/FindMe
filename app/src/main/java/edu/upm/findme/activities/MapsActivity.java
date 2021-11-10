@@ -12,6 +12,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+
 import edu.upm.findme.App;
 import edu.upm.findme.AppEvent;
 import edu.upm.findme.R;
@@ -24,6 +26,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     MenuManager menuManager;
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
+
+    ArrayList<LatLng>arrayList = new ArrayList<LatLng>();
+    LatLng sydney = new LatLng(-34, 151);
+    LatLng TamWorth=new LatLng(-31.083332, 150.916672);
+    LatLng NewCastle=new LatLng(-32.916668, 151.750000);
+    LatLng Brisbane=new LatLng(-27.470125, 153.021072);
+    LatLng Dubbo=new LatLng(-32.256943, 148.601105);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +48,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        arrayList.add(sydney);
+        arrayList.add(TamWorth);
+        arrayList.add(NewCastle);
+        arrayList.add(Brisbane);
+        arrayList.add(Dubbo);
     }
 
     @Override
@@ -66,8 +80,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        for (int i=0;i<arrayList.size();i++){
+            mMap.addMarker(new MarkerOptions().position(arrayList.get(i)).title("Marker"));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(15.0f));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(arrayList.get(i)));
+        }
     }
 }
