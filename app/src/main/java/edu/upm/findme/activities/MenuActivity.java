@@ -15,11 +15,12 @@ import edu.upm.findme.App;
 import edu.upm.findme.AppEvent;
 import edu.upm.findme.R;
 import edu.upm.findme.adapters.UserAdapter;
+import edu.upm.findme.model.UserDetails;
 import edu.upm.findme.utility.ApiClient;
 import edu.upm.findme.utility.MenuManager;
 
 
-public class MenuActivity extends AppCompatActivity implements App.MortalObserver, ApiClient.FailureHandler {
+public class MenuActivity extends AppCompatActivity implements App.MortalObserver, ApiClient.FailureHandler, UserAdapter.UserClickListener {
 
     final ApiClient api = new ApiClient(this);
     App app;
@@ -38,7 +39,7 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         menuManager = new MenuManager(this, app);
 
         userList = findViewById(R.id.listUsers);
-        userAdapter = new UserAdapter();
+        userAdapter = new UserAdapter(this);
         userList.setAdapter(userAdapter);
         userList.setLayoutManager(new LinearLayoutManager(this));
 
@@ -96,5 +97,10 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
     @Override
     public void onApiFailure(String errorDescription) {
         Toast.makeText(this, "API error: " + errorDescription, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onUserClick(UserDetails user) {
+        Toast.makeText(this, user.getName() + " clicked", Toast.LENGTH_SHORT).show();
     }
 }
