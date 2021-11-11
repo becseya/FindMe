@@ -9,12 +9,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
 import edu.upm.findme.App;
 import edu.upm.findme.AppEvent;
 import edu.upm.findme.R;
+import edu.upm.findme.adapters.MessageAdapter;
 import edu.upm.findme.model.Message;
 import edu.upm.findme.utility.MenuManager;
 
@@ -24,6 +27,8 @@ public class MessengerActivity extends AppCompatActivity implements App.MortalOb
     TextView txtMessage;
     Button btnSend;
     App app;
+    RecyclerView messageList;
+    MessageAdapter messageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +58,11 @@ public class MessengerActivity extends AppCompatActivity implements App.MortalOb
             view.setEnabled(false);
         });
 
+        messageList = findViewById(R.id.messageList);
+        messageAdapter = new MessageAdapter();
+        messageList.setAdapter(messageAdapter);
+        messageList.setLayoutManager(new LinearLayoutManager(this));
+
         drawMessages();
     }
 
@@ -70,7 +80,6 @@ public class MessengerActivity extends AppCompatActivity implements App.MortalOb
     }
 
     void drawMessages() {
-        List<Message> messages = app.mqtt.getMessages();
-        Toast.makeText(this, "Got: " + messages.size(), Toast.LENGTH_SHORT).show();
+        messageAdapter.updateMessages(app.mqtt.getMessages());
     }
 }
