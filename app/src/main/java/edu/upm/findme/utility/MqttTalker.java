@@ -121,10 +121,23 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
 
                 statuses.put(id, status);
                 observer.onGlobalEvent(AppEvent.Type.STATUS_DATABASE_CHANGED);
+
+                if (status != UserDetails.Status.LIVE)
+                    if (locations.containsKey(id)) {
+                        locations.remove(id);
+                        observer.onGlobalEvent(AppEvent.Type.LOCATION_DATABASE_CHANGED);
+                    }
             }
         } catch (Exception e) {
             Log.d(LOG_TAG, "Error during message parsing: " + e.toString());
         }
+    }
+
+    public void setLocationUpdates(boolean enabled) {
+        if (enabled)
+            client.subscribe(TOPIC_LOCATION + "#", 1);
+        else
+            client.unSubscribe(TOPIC_LOCATION + "#");
     }
 
     private int getUserIdByTopic(String topic) throws NumberFormatException, ArrayIndexOutOfBoundsException {
