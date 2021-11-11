@@ -10,17 +10,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import edu.upm.findme.R;
 import edu.upm.findme.model.UserDetails;
 
-public class UserViewHolder extends RecyclerView.ViewHolder {
+public class UserViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     TextView txtName;
     TextView txtPhone;
     GradientDrawable statusCircle;
+    ItemClickListener listener;
 
-    public UserViewHolder(View itemView) {
+    public UserViewHolder(View itemView, ItemClickListener listener) {
         super(itemView);
         this.txtName = itemView.findViewById(R.id.lblUsercardName);
         this.txtPhone = itemView.findViewById(R.id.lblUsercardPhone);
         this.statusCircle = (GradientDrawable) itemView.findViewById(R.id.userStatus).getBackground();
+        this.listener = listener;
+        itemView.setOnClickListener(this);
     }
 
     void bindValues(UserDetails user) {
@@ -39,5 +42,15 @@ public class UserViewHolder extends RecyclerView.ViewHolder {
                 return resources.getColor(R.color.online_green);
         }
         return 0;
+    }
+
+    @Override
+    public void onClick(View view) {
+        listener.onItemClick(getAdapterPosition(), view);
+
+    }
+
+    public interface ItemClickListener {
+        void onItemClick(int position, View v);
     }
 }

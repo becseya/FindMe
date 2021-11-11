@@ -10,5 +10,7 @@
     <string name="btn_steps">Steps</string>
     <string name="lbl_steps_taken">You have taken <b>N</b> steps so far</string>
     <string name="sender_name">sender_name</string>
-
+    <string name="title_activity_maps">Locations</string>
+    <string name="btn_maps">Map</string>
+    <string name="user_is_not_live">User is not live</string>
 </resources>

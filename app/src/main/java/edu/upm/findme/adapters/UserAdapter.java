@@ -15,19 +15,21 @@ import edu.upm.findme.R;
 import edu.upm.findme.model.User;
 import edu.upm.findme.model.UserDetails;
 
-public class UserAdapter extends RecyclerView.Adapter<UserViewHolder> {
+public class UserAdapter extends RecyclerView.Adapter<UserViewHolder> implements UserViewHolder.ItemClickListener {
 
     List<UserDetails> users = new ArrayList<>();
+    UserClickListener clickListener;
 
-    public UserAdapter() {
+    public UserAdapter(UserClickListener clickListener) {
         super();
+        this.clickListener = clickListener;
     }
 
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_user, parent, false);
-        return new UserViewHolder(v);
+        return new UserViewHolder(v, this);
     }
 
     @Override
@@ -70,5 +72,15 @@ public class UserAdapter extends RecyclerView.Adapter<UserViewHolder> {
                 }
             }
         }
+    }
+
+    @Override
+    public void onItemClick(int position, View v) {
+        notifyItemChanged(position); // animate user click
+        clickListener.onUserClick(users.get(position));
+    }
+
+    public interface UserClickListener {
+        void onUserClick(UserDetails user);
     }
 }
