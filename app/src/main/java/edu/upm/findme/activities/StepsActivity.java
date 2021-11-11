@@ -53,6 +53,8 @@ public class StepsActivity extends AppCompatActivity implements App.MortalObserv
         xAxis.setGranularity(1f);
         xAxis.setGranularityEnabled(true);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        chartSteps.getAxisLeft().setAxisMinimum(0.f);
+        chartSteps.getAxisRight().setAxisMinimum(0.f);
     }
 
     @Override
@@ -78,13 +80,16 @@ public class StepsActivity extends AppCompatActivity implements App.MortalObserv
         if (list.size() == 0)
             list.add(candidate);
         else {
+            boolean notAddedYet = true;
+
             for (int i = 0; i < list.size(); i++) {
                 if (candidate.steps > list.get(i).steps) {
                     list.add(i, candidate);
+                    notAddedYet = false;
                     break;
                 }
             }
-            if (list.size() < MAX_NUMBER_OF_TOP_USERS)
+            if (notAddedYet && (list.size() < MAX_NUMBER_OF_TOP_USERS))
                 list.add(candidate);
             else if (list.size() > MAX_NUMBER_OF_TOP_USERS)
                 list.remove(list.size() - 1);
