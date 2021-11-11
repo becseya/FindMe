@@ -14,7 +14,7 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
 
     public MessageViewHolder(View itemView) {
         super(itemView);
-        this.content = itemView.findViewById(R.id.message);
+        this.content = itemView.findViewById(R.id.lblMessageCardContent);
 
     }
 
