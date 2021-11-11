@@ -11,10 +11,12 @@ import edu.upm.findme.model.MessageDetails;
 public class MessageViewHolder extends RecyclerView.ViewHolder {
 
     TextView content;
+    TextView senderName;
 
     public MessageViewHolder(View itemView) {
         super(itemView);
         this.content = itemView.findViewById(R.id.lblMessageCardContent);
+        this.senderName = itemView.findViewById(R.id.senderName);
 
     }
 
