@@ -1,6 +1,7 @@
 package edu.upm.findme.activities;
 
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -30,6 +31,8 @@ public class StepsActivity extends AppCompatActivity implements App.MortalObserv
     BarDataSet dataSetSteps;
     BarData chartData;
     BarChart chartSteps;
+    int stepsTaken = 0;
+    TextView stepsTakenText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,8 @@ public class StepsActivity extends AppCompatActivity implements App.MortalObserv
         setContentView(R.layout.activity_steps);
 
         app = ((App) getApplicationContext()).initWithObserver(this);
+
+        stepsTakenText = findViewById(R.id.lblStepsTaken);
 
         chartSteps = (BarChart) findViewById(R.id.chartSteps);
         dataSetSteps = new BarDataSet(entries, "Steps");
@@ -57,12 +62,16 @@ public class StepsActivity extends AppCompatActivity implements App.MortalObserv
     }
 
     void updateUI() {
-        calculateTopUsers();
+        calculateTopUsersAndStepsTaken();
         dataSetSteps.notifyDataSetChanged();
         chartData.notifyDataChanged();
         chartSteps.notifyDataSetChanged();
         chartSteps.getXAxis().setValueFormatter(new IndexAxisValueFormatter(labels));
         chartSteps.invalidate();
+
+        String stepsTakenString = getString(R.string.lbl_steps_taken);
+        stepsTakenString = stepsTakenString.replace("N", String.valueOf(stepsTaken));
+        stepsTakenText.setText(stepsTakenString);
     }
 
     void updateTopUsers(List<TopEntry> list, TopEntry candidate) {
@@ -82,7 +91,7 @@ public class StepsActivity extends AppCompatActivity implements App.MortalObserv
         }
     }
 
-    void calculateTopUsers() {
+    void calculateTopUsersAndStepsTaken() {
         List<TopEntry> top3users = new ArrayList<>();
 
         for (Map.Entry<Integer, Integer> entry : app.mqtt.getSteps().entrySet()) {
@@ -90,6 +99,9 @@ public class StepsActivity extends AppCompatActivity implements App.MortalObserv
 
             if (user != null)
                 updateTopUsers(top3users, new TopEntry(entry.getKey(), entry.getValue(), user.getName()));
+
+            if (entry.getKey() == app.userInfo.getUserId())
+                stepsTaken = entry.getValue();
         }
 
         labels.clear();
