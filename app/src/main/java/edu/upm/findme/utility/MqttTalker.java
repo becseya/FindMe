@@ -19,7 +19,7 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
     final static String TOPIC_STEPS = "steps/";
     final static String TOPIC_LOCATION = "locations/";
     final static String TOPIC_STATUS = "status/";
-    final static String MESSAGE_FIELD_SEPARATOR = "+";
+    final static String MESSAGE_FIELD_SEPARATOR = "_";
 
     final PersistentSessionMqttClient client;
     final AppEvent.Observer observer;
@@ -123,7 +123,7 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
                 observer.onGlobalEvent(AppEvent.Type.STATUS_DATABASE_CHANGED);
             }
         } catch (Exception e) {
-            Log.d(LOG_TAG, "Error during message parsing");
+            Log.d(LOG_TAG, "Error during message parsing: " + e.toString());
         }
     }
 
@@ -136,8 +136,8 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
         Location location = new Location("");
         String[] fields = message.split(MESSAGE_FIELD_SEPARATOR);
 
-        location.setLatitude(Integer.parseInt(fields[0]));
-        location.setLongitude(Integer.parseInt(fields[1]));
+        location.setLatitude(Double.parseDouble(fields[0]));
+        location.setLongitude(Double.parseDouble(fields[1]));
         return location;
     }
 
