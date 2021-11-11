@@ -8,4 +8,5 @@
     <string name="btn_send">➡</string>
     <string name="title_steps">Steps taken</string>
     <string name="btn_steps">Steps</string>
+    <string name="lbl_steps_taken">You have taken <b>N</b> steps so far</string>
 </resources>
