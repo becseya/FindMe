@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.upm.findme.R;
@@ -37,8 +38,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
         return (messages == null) ? 0 : messages.size();
     }
 
-    public void updateMessages(List<Message> messages) {
-        this.messages = messages;
-        notifyDataSetChanged();
+    public void updateMessages(List<Message> allMessages) {
+        if (messages == null) {
+            messages = new ArrayList<>(allMessages);
+            notifyDataSetChanged();
+        } else if (messages.size() != allMessages.size()) {
+            int idx = messages.size();
+
+            for (int i = idx; i < allMessages.size(); i++)
+                messages.add(allMessages.get(i));
+
+            notifyItemRangeInserted(idx, allMessages.size() - idx);
+        }
     }
 }
