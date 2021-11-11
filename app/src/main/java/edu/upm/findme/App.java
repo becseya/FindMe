@@ -7,6 +7,9 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 
+import java.util.List;
+
+import edu.upm.findme.model.User;
 import edu.upm.findme.model.UserDetails;
 import edu.upm.findme.utility.Locator;
 import edu.upm.findme.utility.MqttTalker;
@@ -19,6 +22,7 @@ public class App extends Application implements AppEvent.Observer, StepSensor.Se
     public MqttTalker mqtt;
     public StepSensor stepSensor;
     public Locator locator;
+    public List<User> users;
 
     boolean hasBeenInitialized;
     MortalObserver currentObserver = null;
