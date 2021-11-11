@@ -5,20 +5,28 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import edu.upm.findme.App;
 import edu.upm.findme.AppEvent;
 import edu.upm.findme.R;
+import edu.upm.findme.adapters.UserAdapter;
+import edu.upm.findme.utility.ApiClient;
 import edu.upm.findme.utility.MenuManager;
 
 
-public class MenuActivity extends AppCompatActivity implements App.MortalObserver {
+public class MenuActivity extends AppCompatActivity implements App.MortalObserver, ApiClient.FailureHandler {
 
+    final ApiClient api = new ApiClient(this);
     App app;
     MenuManager menuManager;
     TextView lblUnreadMessages;
+    RecyclerView userList;
+    UserAdapter userAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,9 +37,17 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         lblUnreadMessages = findViewById(R.id.lblUnreadMessages);
         menuManager = new MenuManager(this, app);
 
-        // Services are protected again starting twice internally
-        app.mqtt.start();
-        app.stepSensor.start();
+        userList = findViewById(R.id.listUsers);
+        userAdapter = new UserAdapter();
+        userList.setAdapter(userAdapter);
+        userList.setLayoutManager(new LinearLayoutManager(this));
+
+        api.listUsers((fetchedUsers) -> {
+            userAdapter.updateUsers(fetchedUsers, app.mqtt.getStatuses());
+            // Services are protected against starting twice internally
+            app.mqtt.start();
+            app.stepSensor.start();
+        });
     }
 
     public void onBtnMessages(View view) {
@@ -47,12 +63,15 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         menuManager.onGlobalEvent(e);
         if (e == AppEvent.Type.MEW_MESSAGE)
             updateUnreadMessages();
+        if (e == AppEvent.Type.STATUS_DATABASE_CHANGED)
+            userAdapter.updateUserStatuses(app.mqtt.getStatuses());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         updateUnreadMessages();
+        userAdapter.updateUserStatuses(app.mqtt.getStatuses());
     }
 
     @Override
@@ -67,5 +86,10 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
             lblUnreadMessages.setText(String.valueOf(app.mqtt.getNumberOfUnreadMessages()));
         } else
             lblUnreadMessages.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onApiFailure(String errorDescription) {
+        Toast.makeText(this, "API error: " + errorDescription, Toast.LENGTH_SHORT).show();
     }
 }
