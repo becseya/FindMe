@@ -6,7 +6,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import edu.upm.findme.R;
-import edu.upm.findme.model.Message;
+import edu.upm.findme.model.MessageDetails;
 
 public class MessageViewHolder extends RecyclerView.ViewHolder {
 
@@ -18,7 +18,7 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
 
     }
 
-    void bindValues(Message message) {
+    void bindValues(MessageDetails message) {
         content.setText(message.getContent());
     }
 }

@@ -12,10 +12,12 @@ import java.util.List;
 
 import edu.upm.findme.R;
 import edu.upm.findme.model.Message;
+import edu.upm.findme.model.MessageDetails;
+import edu.upm.findme.model.User;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
 
-    List<Message> messages = null;
+    List<MessageDetails> messages = null;
 
     public MessageAdapter() {
         super();
@@ -38,17 +40,41 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
         return (messages == null) ? 0 : messages.size();
     }
 
-    public void updateMessages(List<Message> allMessages) {
+    public void updateMessages(List<Message> allMessages, List<User> users) {
         if (messages == null) {
-            messages = new ArrayList<>(allMessages);
+            messages = new ArrayList<>();
+
+            for (Message m : allMessages)
+                messages.add(new MessageDetails(m));
+
             notifyDataSetChanged();
         } else if (messages.size() != allMessages.size()) {
             int idx = messages.size();
 
             for (int i = idx; i < allMessages.size(); i++)
-                messages.add(allMessages.get(i));
+                messages.add(new MessageDetails(allMessages.get(i)));
 
             notifyItemRangeInserted(idx, allMessages.size() - idx);
         }
+
+        if (users == null)
+            return;
+
+        for (int i = 0; i < messages.size(); i++) {
+            String senderName = getSenderNameById(users, messages.get(i).getSenderId());
+
+            if ((senderName != null) && !messages.get(i).getSenderName().equals(senderName)) {
+                messages.get(i).setSenderName(senderName);
+                notifyItemChanged(i);
+            }
+        }
+    }
+
+    private String getSenderNameById(List<User> users, int id) {
+        for (User u : users)
+            if (u.getId() == id)
+                return u.getName();
+
+        return null;
     }
 }

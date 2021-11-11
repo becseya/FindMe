@@ -80,6 +80,6 @@ public class MessengerActivity extends AppCompatActivity implements App.MortalOb
     }
 
     void drawMessages() {
-        messageAdapter.updateMessages(app.mqtt.getMessages());
+        messageAdapter.updateMessages(app.mqtt.getMessages(), app.users);
     }
 }
