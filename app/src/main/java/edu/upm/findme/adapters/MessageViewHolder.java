@@ -15,12 +15,12 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
 
     public MessageViewHolder(View itemView) {
         super(itemView);
-        this.content = itemView.findViewById(R.id.lblMessageCardContent);
-        this.senderName = itemView.findViewById(R.id.senderName);
-
+        this.content = itemView.findViewById(R.id.message_card_content);
+        this.senderName = itemView.findViewById(R.id.message_card_sender_name);
     }
 
     void bindValues(MessageDetails message) {
         content.setText(message.getContent());
+        senderName.setText(message.getSenderName());
     }
 }
