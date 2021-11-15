@@ -1,6 +1,7 @@
 <?php
 
 $USERS_FILENAME = 'users.json';
+$GROUPS_FILENAME = 'groups.json';
 
 function fatal_error($description) {
     http_response_code(400);
@@ -97,6 +98,34 @@ function users_remove() {
     db_remove_by_id($USERS_FILENAME);
 }
 
+function group_list() {
+    global $GROUPS_FILENAME;
+
+    header('Content-Type: application/json; charset=utf-8');
+    echo(file_get_contents($GROUPS_FILENAME));
+}
+
+function group_add() {
+    global $GROUPS_FILENAME;
+
+    $name = $_POST['name'];
+    $owner = $_POST['owner'];
+
+    if (!isset($name) || !isset($owner) || !is_numeric($owner))
+        fatal_error("Bad parameter(s)!");
+
+    $new_group['name'] = $name;
+    $new_group['owner'] = (int)$owner;
+
+    db_insert_with_auto_id_into_file($GROUPS_FILENAME, $new_group);
+}
+
+function group_remove() {
+    global $GROUPS_FILENAME;
+
+    db_remove_by_id($GROUPS_FILENAME);
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 
 switch($_GET['command']) {
@@ -108,6 +137,15 @@ switch($_GET['command']) {
         break;
     case 'user-list':
         users_list();
+        break;
+    case 'group-list':
+        group_list();
+        break;
+    case 'group-add':
+        group_add();
+        break;
+    case 'group-remove':
+        group_remove();
         break;
     default:
         fatal_error("Unknown command");
