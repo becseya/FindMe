@@ -42,6 +42,31 @@ function db_insert_with_auto_id(&$entries, $new_entry) {
     return $id;
 }
 
+function db_remove_by_id($filename) {
+    $id = $_POST['id'];
+
+    if (!isset($id) || !is_numeric($id))
+        fatal_error("Bad or missing 'id' parameter!");
+
+    $entries = db_load($filename);
+    $idx = db_get_index_by_id($entries, $id);
+
+    if ($idx < 0)
+        fatal_error("Entry with id $id not found!");
+
+    array_splice($entries, $idx, 1);
+    db_save($filename, $entries);
+    echo("OK");
+}
+
+function db_insert_with_auto_id_into_file($filename, $new_entry) {
+    $entries = db_load($filename);
+    $id = db_insert_with_auto_id($entries, $new_entry);
+    db_save($filename, $entries);
+
+    echo("$id");
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 
 function users_list() {
@@ -63,30 +88,13 @@ function users_add() {
     $new_user['name'] = $name;
     $new_user['phone'] = $phone;
 
-    $users = db_load($USERS_FILENAME);
-    $id = db_insert_with_auto_id($users, $new_user);
-    db_save($USERS_FILENAME, $users);
-
-    echo("$id");
+    db_insert_with_auto_id_into_file($USERS_FILENAME, $new_user);
 }
 
 function users_remove() {
     global $USERS_FILENAME;
 
-    $id = $_POST['id'];
-
-    if (!isset($id) || !is_numeric($id))
-        fatal_error("Bad or missing 'id' parameter!");
-
-    $users = db_load($USERS_FILENAME);
-    $idx = db_get_index_by_id($users, $id);
-
-    if ($idx < 0)
-        fatal_error("User with id $id not found!");
-
-    array_splice($users, $idx, 1);
-    db_save($USERS_FILENAME, $users);
-    echo("OK");
+    db_remove_by_id($USERS_FILENAME);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
