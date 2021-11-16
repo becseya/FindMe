@@ -13,4 +13,5 @@
     <string name="title_activity_maps">Locations</string>
     <string name="btn_maps">Map</string>
     <string name="user_is_not_live">User is not live</string>
+    <string name="groups">Groups</string>
 </resources>

@@ -42,7 +42,7 @@ public class RegisterActivity extends AppCompatActivity implements ApiClient.Fai
 
         if (app.userInfo.isUserIdSet()) {
             permissionRequester.askAndGoToSettingIfDenied(PERM_STEP_SENSOR, () -> {
-                jumpToMenu();
+                jumpToNextActivity();
             });
         }
     }
@@ -53,7 +53,7 @@ public class RegisterActivity extends AppCompatActivity implements ApiClient.Fai
 
             api.registerUser(user, (id) -> {
                 app.userInfo.setUserId(id);
-                jumpToMenu();
+                jumpToNextActivity();
             });
         });
     }
@@ -63,8 +63,8 @@ public class RegisterActivity extends AppCompatActivity implements ApiClient.Fai
         Toast.makeText(RegisterActivity.this, "API error: " + errorDescription, Toast.LENGTH_SHORT).show();
     }
 
-    void jumpToMenu() {
-        Intent intent = new Intent(this, MenuActivity.class);
+    void jumpToNextActivity() {
+        Intent intent = new Intent(this, GroupsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
