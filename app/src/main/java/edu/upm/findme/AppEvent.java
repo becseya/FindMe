@@ -7,6 +7,8 @@ public class AppEvent {
         STEP_TAKEN_BY_USER,
         LOCATION_DATABASE_CHANGED,
         STATUS_DATABASE_CHANGED,
+        USER_LEFT_GROUP,
+        GROUP_USERS_CHANGED,
         MQTT_CONNECTION_CHANGE
     }
 

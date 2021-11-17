@@ -96,6 +96,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (markers.containsKey(userId))
                 markers.get(userId).setPosition(latLng);
             else {
+                // skip other users in singe user mode
+                if ((app.singleUserOnMap != 0) && (app.singleUserOnMap != userId))
+                    continue;
+
                 String displayName = "";
                 User u = User.getById(app.users, userId);
 

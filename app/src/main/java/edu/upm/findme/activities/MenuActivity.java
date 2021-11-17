@@ -62,18 +62,23 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
     }
 
     public void onBtnMaps(View view) {
+        app.singleUserOnMap = 0;
         startActivity(new Intent(this, MapsActivity.class));
     }
 
     public void onBtnLeaveGroup(View view) {
-        app.userInfo.leaveGroup();
-        app.mqtt.stop();
+        api.joinGroup(app.userInfo.getUserId(), 0, (result) -> {
+            if (result.equals("OK")) {
+                app.userInfo.leaveGroup();
+                app.mqtt.stop();
 
-        // start Groups activity
-        Intent intent = new Intent(this, GroupsActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
+                // start Groups activity
+                Intent intent = new Intent(this, GroupsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     @Override
@@ -83,6 +88,8 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
             updateUnreadMessages();
         if (e == AppEvent.Type.STATUS_DATABASE_CHANGED)
             userAdapter.updateUserStatuses(app.mqtt.getStatuses());
+        if (e == AppEvent.Type.GROUP_USERS_CHANGED)
+            userAdapter.updateUsers(app.users, app.mqtt.getStatuses());
     }
 
     @Override
@@ -113,6 +120,10 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
 
     @Override
     public void onUserClick(UserDetails user) {
-        Toast.makeText(this, user.getName() + " clicked", Toast.LENGTH_SHORT).show();
+        if (user.getStatus() == UserDetails.Status.LIVE) {
+            app.singleUserOnMap = user.getId();
+            startActivity(new Intent(this, MapsActivity.class));
+        } else
+            Toast.makeText(this, getString(R.string.user_not_live), Toast.LENGTH_SHORT).show();
     }
 }

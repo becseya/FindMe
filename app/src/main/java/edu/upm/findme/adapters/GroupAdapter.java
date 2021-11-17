@@ -16,12 +16,14 @@ import edu.upm.findme.model.Group;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupViewHolder> implements GroupViewHolder.ItemClickListener {
 
+    final int userId;
     List<Group> groups = new ArrayList<>();
     GroupClickListener clickListener;
 
-    public GroupAdapter(GroupClickListener clickListener) {
+    public GroupAdapter(GroupClickListener clickListener, int userId) {
         super();
         this.clickListener = clickListener;
+        this.userId = userId;
     }
 
     @NonNull
@@ -33,7 +35,10 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupViewHolder> implemen
 
     @Override
     public void onBindViewHolder(GroupViewHolder holder, int position) {
-        holder.bindValues(groups.get(position));
+        Group group = groups.get(position);
+        boolean removable = (group.getOwnerId() == userId);
+
+        holder.bindValues(group, removable);
     }
 
     @Override
@@ -46,13 +51,23 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupViewHolder> implemen
         notifyDataSetChanged();
     }
 
+    public void removeAtPosition(int position) {
+        groups.remove(position);
+        notifyItemRemoved(position);
+    }
+
     @Override
-    public void onItemClick(int position, View v) {
-        notifyItemChanged(position); // animate click
-        clickListener.onGroupClick(groups.get(position));
+    public void onItemClick(int position, View v, boolean remove) {
+        if (!remove) {
+            notifyItemChanged(position); // animate click
+            clickListener.onGroupClick(groups.get(position));
+        } else
+            clickListener.onGroupRemove(groups.get(position), position);
     }
 
     public interface GroupClickListener {
         void onGroupClick(Group group);
+
+        void onGroupRemove(Group group, int position);
     }
 }
