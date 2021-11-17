@@ -32,7 +32,7 @@ public class GroupsActivity extends AppCompatActivity implements ApiClient.Failu
         app = ((App) getApplicationContext()).init();
 
         groupList = findViewById(R.id.listGroups);
-        groupAdapter = new GroupAdapter(this);
+        groupAdapter = new GroupAdapter(this, app.userInfo.getUserId());
         groupList.setAdapter(groupAdapter);
         groupList.setLayoutManager(new LinearLayoutManager(this));
 
@@ -60,6 +60,20 @@ public class GroupsActivity extends AppCompatActivity implements ApiClient.Failu
                 finish();
             }
         });
+    }
+
+    @Override
+    public void onGroupRemove(Group group, int position) {
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.are_you_sure)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {
+                    api.RemoveGroup(group.getId(), (answer) -> {
+                        if (answer.equals("OK"))
+                            groupAdapter.removeAtPosition(position);
+                    });
+                })
+                .setNegativeButton(android.R.string.no, null).show();
     }
 
     public void onBtnNewGroup(View view) {

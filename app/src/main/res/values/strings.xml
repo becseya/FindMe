@@ -21,4 +21,6 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="enter_new_group_name">Enter the name of new the group</string>
+    <string name="remove_group">Remove group</string>
+    <string name="are_you_sure">Are you sure?</string>
 </resources>

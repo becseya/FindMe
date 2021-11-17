@@ -107,6 +107,16 @@ public class ApiClient extends ApiClientProtected {
         }));
     }
 
+    public void RemoveGroup(int id, StringResultHandler handler) {
+        RequestBody requestBody = new FormBody.Builder()
+                .add("id", String.valueOf(id))
+                .build();
+
+        post(getUrl("group-remove"), requestBody, successHandlerBuilder((answer) -> {
+            handler.onStringResult(answer);
+        }));
+    }
+
     private void parseGroups(String answer, GroupListHandler handler) throws JSONException {
         List<Group> groups = new ArrayList<>();
         JSONArray array = new JSONArray(answer);
