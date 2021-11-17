@@ -151,8 +151,11 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
     public void setLocationUpdates(boolean enabled) {
         if (enabled)
             client.subscribe(TOPIC_LOCATION + "#", 1);
-        else
+        else {
+            // unsubscribe not working
             client.unSubscribe(TOPIC_LOCATION + "#");
+            locations.clear();
+        }
     }
 
     private int getUserIdByTopic(String topic) throws NumberFormatException, ArrayIndexOutOfBoundsException {

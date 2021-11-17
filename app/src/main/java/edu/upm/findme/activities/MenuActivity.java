@@ -62,6 +62,7 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
     }
 
     public void onBtnMaps(View view) {
+        app.singleUserOnMap = 0;
         startActivity(new Intent(this, MapsActivity.class));
     }
 
@@ -113,6 +114,10 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
 
     @Override
     public void onUserClick(UserDetails user) {
-        Toast.makeText(this, user.getName() + " clicked", Toast.LENGTH_SHORT).show();
+        if (user.getStatus() == UserDetails.Status.LIVE) {
+            app.singleUserOnMap = user.getId();
+            startActivity(new Intent(this, MapsActivity.class));
+        } else
+            Toast.makeText(this, getString(R.string.user_not_live), Toast.LENGTH_SHORT).show();
     }
 }

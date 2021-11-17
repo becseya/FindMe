@@ -23,6 +23,7 @@ public class App extends Application implements AppEvent.Observer, StepSensor.Se
     public StepSensor stepSensor;
     public Locator locator;
     public List<User> users;
+    public int singleUserOnMap;
 
     boolean hasBeenInitialized;
     MortalObserver currentObserver = null;

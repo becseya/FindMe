@@ -15,4 +15,5 @@
     <string name="user_is_not_live">User is not live</string>
     <string name="groups">Groups</string>
     <string name="leave_group">Leave group</string>
+    <string name="user_not_live">User is not live</string>
 </resources>
