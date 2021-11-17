@@ -36,6 +36,7 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
 
         app = ((App) getApplicationContext()).initWithObserver(this);
         lblUnreadMessages = findViewById(R.id.lblUnreadMessages);
+        ((TextView) findViewById(R.id.lblGroupName)).setText(app.userInfo.getGroupName());
         menuManager = new MenuManager(this, app);
 
         userList = findViewById(R.id.listUsers);
@@ -43,11 +44,11 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         userList.setAdapter(userAdapter);
         userList.setLayoutManager(new LinearLayoutManager(this));
 
-        api.listUsers((fetchedUsers) -> {
+        api.listUsers(app.userInfo.getGroupId(), (fetchedUsers) -> {
             app.users = fetchedUsers;
             userAdapter.updateUsers(fetchedUsers, app.mqtt.getStatuses());
             // Services are protected against starting twice internally
-            app.mqtt.start();
+            app.mqtt.start(app.userInfo.getGroupId());
             app.stepSensor.start();
         });
     }
@@ -62,6 +63,17 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
 
     public void onBtnMaps(View view) {
         startActivity(new Intent(this, MapsActivity.class));
+    }
+
+    public void onBtnLeaveGroup(View view) {
+        app.userInfo.leaveGroup();
+        app.mqtt.stop();
+
+        // start Groups activity
+        Intent intent = new Intent(this, GroupsActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
     @Override

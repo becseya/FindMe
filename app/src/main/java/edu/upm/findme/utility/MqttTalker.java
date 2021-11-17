@@ -45,16 +45,31 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
         return connected;
     }
 
-    public void start() {
+    public void start(int groupId) {
         if (!hasBeenStarted) {
             PersistentSessionMqttClient.LastWillOptions lastWill = new PersistentSessionMqttClient.LastWillOptions();
             lastWill.topic = TOPIC_STATUS + userId;
             lastWill.payload = UserDetails.Status.OFFLINE.toString();
             lastWill.qos = 1;
             lastWill.retain = true;
-            client.connect(lastWill);
+            client.connect(String.valueOf(groupId), lastWill);
             hasBeenStarted = true;
         }
+    }
+
+    public void stop() {
+        numberOfUnreadMessages = 0;
+        messages.clear();
+        statuses.clear();
+        locations.clear();
+        statuses.clear();
+        client.unSubscribe("#");
+        client.publishMessage(TOPIC_STATUS + userId, "", 1, true);
+        client.publishMessage(TOPIC_STEPS + userId, "", 1, true);
+        client.publishMessage(TOPIC_LOCATION + userId, "", 1, false);
+        client.disconnect();
+        hasBeenStarted = false;
+        hasBeenSubscribedToMessages = false;
     }
 
     public int getNumberOfUnreadMessages() {

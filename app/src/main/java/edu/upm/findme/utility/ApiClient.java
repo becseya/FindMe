@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.upm.findme.model.Group;
 import edu.upm.findme.model.User;
 import okhttp3.FormBody;
 import okhttp3.RequestBody;
@@ -60,8 +61,12 @@ public class ApiClient extends ApiClientProtected {
         }));
     }
 
-    public void listUsers(UserListHandler handler) {
-        get(getUrl("user-list"), successHandlerBuilder((answer) -> {
+    public void listUsers(int groupId, UserListHandler handler) {
+        RequestBody requestBody = new FormBody.Builder()
+                .add("groupId", String.valueOf(groupId))
+                .build();
+
+        post(getUrl("user-list"), requestBody, successHandlerBuilder((answer) -> {
             List<User> users = new ArrayList<>();
             JSONArray array = new JSONArray(answer);
 
@@ -74,12 +79,45 @@ public class ApiClient extends ApiClientProtected {
         }));
     }
 
+    public void listGroups(GroupListHandler handler) {
+        get(getUrl("group-list"), successHandlerBuilder((answer) -> {
+            List<Group> groups = new ArrayList<>();
+            JSONArray array = new JSONArray(answer);
+
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject u = array.getJSONObject(i);
+                groups.add(new Group(u.getInt("id"), u.getInt("owner"), u.getString("name")));
+            }
+
+            handler.onGroupsListed(groups);
+        }));
+    }
+
+    public void joinGroup(int userId, int groupId, StringResultHandler handler) {
+        RequestBody requestBody = new FormBody.Builder()
+                .add("userId", String.valueOf(userId))
+                .add("groupId", String.valueOf(groupId))
+                .build();
+
+        post(getUrl("join-group"), requestBody, successHandlerBuilder((answer) -> {
+            handler.onStringResult(answer);
+        }));
+    }
+
     public interface UserRegistrationHandler {
         void onUserAdded(int id);
     }
 
     public interface UserListHandler {
         void onUsersListed(List<User> users);
+    }
+
+    public interface GroupListHandler {
+        void onGroupsListed(List<Group> groups);
+    }
+
+    public interface StringResultHandler {
+        void onStringResult(String result);
     }
 
     public interface FailureHandler {
