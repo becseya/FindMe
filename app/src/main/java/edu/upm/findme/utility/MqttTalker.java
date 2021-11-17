@@ -132,16 +132,24 @@ public class MqttTalker implements PersistentSessionMqttClient.EventHandler {
                 observer.onGlobalEvent(AppEvent.Type.LOCATION_DATABASE_CHANGED);
             } else if (topic.startsWith(TOPIC_STATUS)) {
                 int id = getUserIdByTopic(topic);
-                UserDetails.Status status = UserDetails.getStatusFromString(payload);
 
-                statuses.put(id, status);
-                observer.onGlobalEvent(AppEvent.Type.STATUS_DATABASE_CHANGED);
+                if (!payload.isEmpty()) {
+                    UserDetails.Status status = UserDetails.getStatusFromString(payload);
 
-                if (status != UserDetails.Status.LIVE)
-                    if (locations.containsKey(id)) {
-                        locations.remove(id);
-                        observer.onGlobalEvent(AppEvent.Type.LOCATION_DATABASE_CHANGED);
-                    }
+                    statuses.put(id, status);
+                    observer.onGlobalEvent(AppEvent.Type.STATUS_DATABASE_CHANGED);
+
+                    if (status != UserDetails.Status.LIVE)
+                        if (locations.containsKey(id)) {
+                            locations.remove(id);
+                            observer.onGlobalEvent(AppEvent.Type.LOCATION_DATABASE_CHANGED);
+                        }
+                } else {
+                    statuses.remove(id);
+                    steps.remove(id);
+                    locations.remove(id);
+                    observer.onGlobalEvent(AppEvent.Type.USER_LEFT_GROUP);
+                }
             }
         } catch (Exception e) {
             Log.d(LOG_TAG, "Error during message parsing: " + e.toString());

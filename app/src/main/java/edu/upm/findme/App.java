@@ -8,9 +8,11 @@ import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.List;
+import java.util.Map;
 
 import edu.upm.findme.model.User;
 import edu.upm.findme.model.UserDetails;
+import edu.upm.findme.utility.ApiClient;
 import edu.upm.findme.utility.Locator;
 import edu.upm.findme.utility.MqttTalker;
 import edu.upm.findme.utility.StepSensor;
@@ -57,6 +59,11 @@ public class App extends Application implements AppEvent.Observer, StepSensor.Se
     public void onGlobalEvent(AppEvent.Type e) {
         if (currentObserver != null)
             currentObserver.onGlobalEvent(e);
+
+        if (e == AppEvent.Type.STATUS_DATABASE_CHANGED)
+            lookForNewUsers();
+        else if (e == AppEvent.Type.USER_LEFT_GROUP)
+            refreshUserList();
     }
 
     @Override
@@ -80,6 +87,24 @@ public class App extends Application implements AppEvent.Observer, StepSensor.Se
 
         if (newStatus != mqtt.getLastPublishedStatus())
             mqtt.publishUserStatus(newStatus);
+    }
+
+    void lookForNewUsers() {
+        for (Map.Entry<Integer, UserDetails.Status> entry : mqtt.getStatuses().entrySet()) {
+            if (User.getById(users, entry.getKey()) == null) {
+                refreshUserList();
+                return;
+            }
+        }
+    }
+
+    void refreshUserList(){
+               ApiClient api = new ApiClient((errorDescription) -> {/*ignore failure*/});
+
+                api.listUsers(userInfo.getGroupId(), (fetchedUsers) -> {
+                    this.users = fetchedUsers;
+                    onGlobalEvent(AppEvent.Type.GROUP_USERS_CHANGED);
+                });
     }
 
     public interface MortalObserver extends AppEvent.Observer, LifecycleOwner {

@@ -161,9 +161,11 @@ function join_group() {
     if ($userIdx < 0)
         fatal_error("User ($userId) not found");
 
-    $groups = db_load($GROUPS_FILENAME);
-    if (db_get_index_by_id($groups, $groupId) < 0)
-        fatal_error("Group ($groupId) not found");
+    if ($groupId != 0) {
+        $groups = db_load($GROUPS_FILENAME);
+        if (db_get_index_by_id($groups, $groupId) < 0)
+            fatal_error("Group ($groupId) not found");
+    }
 
     $users[$userIdx]['groupId'] = (int)$groupId;
     db_save($USERS_FILENAME, $users);

@@ -67,14 +67,18 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
     }
 
     public void onBtnLeaveGroup(View view) {
-        app.userInfo.leaveGroup();
-        app.mqtt.stop();
+        api.joinGroup(app.userInfo.getUserId(), 0, (result) -> {
+            if (result.equals("OK")) {
+                app.userInfo.leaveGroup();
+                app.mqtt.stop();
 
-        // start Groups activity
-        Intent intent = new Intent(this, GroupsActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
+                // start Groups activity
+                Intent intent = new Intent(this, GroupsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     @Override
@@ -84,6 +88,8 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
             updateUnreadMessages();
         if (e == AppEvent.Type.STATUS_DATABASE_CHANGED)
             userAdapter.updateUserStatuses(app.mqtt.getStatuses());
+        if (e == AppEvent.Type.GROUP_USERS_CHANGED)
+            userAdapter.updateUsers(app.users, app.mqtt.getStatuses());
     }
 
     @Override
