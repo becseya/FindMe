@@ -74,6 +74,11 @@ public class UserInfoManager {
         return groupName;
     }
 
+    public void leaveGroup() {
+        this.groupId = ID_NULL;
+        save();
+    }
+
     public void setGroupInfo(Group group) {
         this.groupId = group.getId();
         this.groupName = group.getName();

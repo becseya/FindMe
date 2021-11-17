@@ -15,12 +15,13 @@ import java.nio.charset.StandardCharsets;
 
 public class PersistentSessionMqttClient implements MqttCallbackExtended {
     final static String SERVER_URI = "tcp://broker.hivemq.com";
-    final static String TOPIC_BASE = "findme.upm.edu/";
-    final static String CLIENT_ID_BASE = TOPIC_BASE + "user";
+    final static String TOPIC_ROOT = "findme.upm.edu/";
+    final static String CLIENT_ID_BASE = TOPIC_ROOT + "user";
 
     final String clientId;
     final MqttAndroidClient client;
     final EventHandler handler;
+    String topicBase;
 
     public PersistentSessionMqttClient(Context appContext, EventHandler handler, int id) {
         this.clientId = CLIENT_ID_BASE + id;
@@ -28,11 +29,13 @@ public class PersistentSessionMqttClient implements MqttCallbackExtended {
         this.handler = handler;
     }
 
-    public void connect() {
-        connect(null);
+    public void connect(String topicBase) {
+        connect(topicBase, null);
     }
 
-    public void connect(LastWillOptions lastWill) {
+    public void connect(String topicBase, LastWillOptions lastWill) {
+        this.topicBase = topicBase;
+
         client.setCallback(this);
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
         mqttConnectOptions.setAutomaticReconnect(true);
@@ -40,7 +43,7 @@ public class PersistentSessionMqttClient implements MqttCallbackExtended {
 
         if (lastWill != null) {
             mqttConnectOptions.setKeepAliveInterval(5);
-            mqttConnectOptions.setWill(TOPIC_BASE + lastWill.topic, lastWill.payload.getBytes(StandardCharsets.UTF_8), lastWill.qos, lastWill.retain);
+            mqttConnectOptions.setWill(getTopicBase() + lastWill.topic, lastWill.payload.getBytes(StandardCharsets.UTF_8), lastWill.qos, lastWill.retain);
         }
 
         try {
@@ -65,9 +68,18 @@ public class PersistentSessionMqttClient implements MqttCallbackExtended {
         }
     }
 
+    public boolean disconnect() {
+        try {
+            client.disconnect();
+            return true;
+        } catch (Exception unused) {
+            return false;
+        }
+    }
+
     public void subscribe(String topic, int qos) {
         try {
-            client.subscribe(TOPIC_BASE + topic, qos, null, new IMqttActionListener() {
+            client.subscribe(getTopicBase() + topic, qos, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                 }
@@ -84,7 +96,7 @@ public class PersistentSessionMqttClient implements MqttCallbackExtended {
 
     public void unSubscribe(String topic) {
         try {
-            client.unsubscribe(topic);
+            client.unsubscribe(getTopicBase() + topic);
         } catch (Exception e) {
             handler.onError("Failed to unsubscribe: " + e.toString());
         }
@@ -96,7 +108,7 @@ public class PersistentSessionMqttClient implements MqttCallbackExtended {
             message.setPayload(payload.getBytes());
             message.setQos(qos);
             message.setRetained(retain);
-            client.publish(TOPIC_BASE + topic, message);
+            client.publish(getTopicBase() + topic, message);
         } catch (Exception e) {
             handler.onError("Failed to publish: " + e.toString());
         }
@@ -115,11 +127,20 @@ public class PersistentSessionMqttClient implements MqttCallbackExtended {
 
     @Override
     public void messageArrived(String topic, MqttMessage message) {
-        handler.onMessage(topic.substring(TOPIC_BASE.length()), new String(message.getPayload()));
+        // unsubscribe doesn't seems to work, this is a dirty workaround
+        if (topic.startsWith(getTopicBase()))
+            handler.onMessage(topic.substring(getTopicBase().length()), new String(message.getPayload()));
     }
 
     @Override
     public void deliveryComplete(IMqttDeliveryToken token) {
+    }
+
+    private String getTopicBase() {
+        if (topicBase.isEmpty())
+            return TOPIC_ROOT;
+        else
+            return TOPIC_ROOT + topicBase + "/";
     }
 
     public interface EventHandler {
