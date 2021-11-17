@@ -3,8 +3,10 @@ package edu.upm.findme.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -61,6 +63,22 @@ public class GroupsActivity extends AppCompatActivity implements ApiClient.Failu
     }
 
     public void onBtnNewGroup(View view) {
-        Toast.makeText(this, "New group", Toast.LENGTH_SHORT).show();
+        final EditText taskEditText = new EditText(this);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.enter_new_group_name)
+                .setView(taskEditText)
+                .setPositiveButton(R.string.ok, (dialog1, which) -> {
+                    addNewGroup(String.valueOf(taskEditText.getText()));
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .create();
+        dialog.show();
+    }
+
+    void addNewGroup(String name) {
+        api.addNewGroup(name, app.userInfo.getUserId(), (groups) -> {
+            groupAdapter.updateGroups(groups);
+        });
     }
 }

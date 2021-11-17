@@ -60,12 +60,13 @@ function db_remove_by_id($filename) {
     echo("OK");
 }
 
-function db_insert_with_auto_id_into_file($filename, $new_entry) {
+function db_insert_with_auto_id_into_file($filename, $new_entry, $print_id) {
     $entries = db_load($filename);
     $id = db_insert_with_auto_id($entries, $new_entry);
     db_save($filename, $entries);
 
-    echo("$id");
+    if ($print_id)
+        echo("$id");
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -109,7 +110,7 @@ function users_add() {
     $new_user['name'] = $name;
     $new_user['phone'] = $phone;
 
-    db_insert_with_auto_id_into_file($USERS_FILENAME, $new_user);
+    db_insert_with_auto_id_into_file($USERS_FILENAME, $new_user, true);
 }
 
 function users_remove() {
@@ -137,7 +138,8 @@ function group_add() {
     $new_group['name'] = $name;
     $new_group['owner'] = (int)$owner;
 
-    db_insert_with_auto_id_into_file($GROUPS_FILENAME, $new_group);
+    db_insert_with_auto_id_into_file($GROUPS_FILENAME, $new_group, false);
+    group_list();
 }
 
 function group_remove() {

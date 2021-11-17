@@ -81,15 +81,7 @@ public class ApiClient extends ApiClientProtected {
 
     public void listGroups(GroupListHandler handler) {
         get(getUrl("group-list"), successHandlerBuilder((answer) -> {
-            List<Group> groups = new ArrayList<>();
-            JSONArray array = new JSONArray(answer);
-
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject u = array.getJSONObject(i);
-                groups.add(new Group(u.getInt("id"), u.getInt("owner"), u.getString("name")));
-            }
-
-            handler.onGroupsListed(groups);
+            parseGroups(answer, handler);
         }));
     }
 
@@ -102,6 +94,29 @@ public class ApiClient extends ApiClientProtected {
         post(getUrl("join-group"), requestBody, successHandlerBuilder((answer) -> {
             handler.onStringResult(answer);
         }));
+    }
+
+    public void addNewGroup(String name, int owner, GroupListHandler handler) {
+        RequestBody requestBody = new FormBody.Builder()
+                .add("name", name)
+                .add("owner", String.valueOf(owner))
+                .build();
+
+        post(getUrl("group-add"), requestBody, successHandlerBuilder((answer) -> {
+            parseGroups(answer, handler);
+        }));
+    }
+
+    private void parseGroups(String answer, GroupListHandler handler) throws JSONException {
+        List<Group> groups = new ArrayList<>();
+        JSONArray array = new JSONArray(answer);
+
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject u = array.getJSONObject(i);
+            groups.add(new Group(u.getInt("id"), u.getInt("owner"), u.getString("name")));
+        }
+
+        handler.onGroupsListed(groups);
     }
 
     public interface UserRegistrationHandler {
