@@ -77,6 +77,26 @@ function users_list() {
     echo(file_get_contents($USERS_FILENAME));
 }
 
+function users_list_filtered() {
+    global $USERS_FILENAME;
+
+    $groupId = $_POST['groupId'];
+
+    if (!isset($groupId) || !is_numeric($groupId))
+        fatal_error("Bad or missing 'groupId' parameter!");
+
+    $users = db_load($USERS_FILENAME);
+    $filteredUsers = array();
+
+    foreach ($users as &$u) {
+        if ($u['groupId'] == $groupId)
+            array_push($filteredUsers, $u);
+    }
+
+    header('Content-Type: application/json; charset=utf-8');
+    echo(json_encode($filteredUsers));
+}
+
 function users_add() {
     global $USERS_FILENAME;
 
@@ -126,9 +146,36 @@ function group_remove() {
     db_remove_by_id($GROUPS_FILENAME);
 }
 
+function join_group() {
+    global $USERS_FILENAME;
+    global $GROUPS_FILENAME;
+
+    $userId = $_POST['userId'];
+    $groupId = $_POST['groupId'];
+
+    if (!isset($userId) || !is_numeric($userId) || !isset($groupId) || !is_numeric($groupId))
+        fatal_error("Bad or missing parameter(s)!");
+
+    $users = db_load($USERS_FILENAME);
+    $userIdx = db_get_index_by_id($users, $userId);
+    if ($userIdx < 0)
+        fatal_error("User ($userId) not found");
+
+    $groups = db_load($GROUPS_FILENAME);
+    if (db_get_index_by_id($groups, $groupId) < 0)
+        fatal_error("Group ($groupId) not found");
+
+    $users[$userIdx]['groupId'] = (int)$groupId;
+    db_save($USERS_FILENAME, $users);
+    echo("OK");
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 
 switch($_GET['command']) {
+    case 'user-list-all':
+        users_list();
+        break;
     case 'user-add':
         users_add();
         break;
@@ -136,7 +183,10 @@ switch($_GET['command']) {
         users_remove();
         break;
     case 'user-list':
-        users_list();
+        users_list_filtered();
+        break;
+    case 'join-group':
+        join_group();
         break;
     case 'group-list':
         group_list();

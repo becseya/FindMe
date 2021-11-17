@@ -1,5 +1,6 @@
 package edu.upm.findme.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -7,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import edu.upm.findme.App;
 import edu.upm.findme.R;
 import edu.upm.findme.adapters.GroupAdapter;
 import edu.upm.findme.model.Group;
@@ -17,11 +19,14 @@ public class GroupsActivity extends AppCompatActivity implements ApiClient.Failu
     final ApiClient api = new ApiClient(this);
     RecyclerView groupList;
     GroupAdapter groupAdapter;
+    App app;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_groups);
+
+        app = ((App) getApplicationContext()).init();
 
         groupList = findViewById(R.id.listGroups);
         groupAdapter = new GroupAdapter(this);
@@ -40,6 +45,17 @@ public class GroupsActivity extends AppCompatActivity implements ApiClient.Failu
 
     @Override
     public void onGroupClick(Group group) {
-        Toast.makeText(this, "Clicked: " + group.getName(), Toast.LENGTH_SHORT).show();
+        api.joinGroup(app.userInfo.getUserId(), group.getId(), (answer) -> {
+            if (answer.equals("OK")) {
+                // save new group
+                app.userInfo.setGroupInfo(group);
+
+                // start menu
+                Intent intent = new Intent(this, MenuActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 }

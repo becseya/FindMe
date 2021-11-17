@@ -61,8 +61,12 @@ public class ApiClient extends ApiClientProtected {
         }));
     }
 
-    public void listUsers(UserListHandler handler) {
-        get(getUrl("user-list"), successHandlerBuilder((answer) -> {
+    public void listUsers(int groupId, UserListHandler handler) {
+        RequestBody requestBody = new FormBody.Builder()
+                .add("groupId", String.valueOf(groupId))
+                .build();
+
+        post(getUrl("user-list"), requestBody, successHandlerBuilder((answer) -> {
             List<User> users = new ArrayList<>();
             JSONArray array = new JSONArray(answer);
 
@@ -89,6 +93,17 @@ public class ApiClient extends ApiClientProtected {
         }));
     }
 
+    public void joinGroup(int userId, int groupId, StringResultHandler handler) {
+        RequestBody requestBody = new FormBody.Builder()
+                .add("userId", String.valueOf(userId))
+                .add("groupId", String.valueOf(groupId))
+                .build();
+
+        post(getUrl("join-group"), requestBody, successHandlerBuilder((answer) -> {
+            handler.onStringResult(answer);
+        }));
+    }
+
     public interface UserRegistrationHandler {
         void onUserAdded(int id);
     }
@@ -99,6 +114,10 @@ public class ApiClient extends ApiClientProtected {
 
     public interface GroupListHandler {
         void onGroupsListed(List<Group> groups);
+    }
+
+    public interface StringResultHandler {
+        void onStringResult(String result);
     }
 
     public interface FailureHandler {

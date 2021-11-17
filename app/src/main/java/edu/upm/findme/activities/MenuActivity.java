@@ -43,7 +43,7 @@ public class MenuActivity extends AppCompatActivity implements App.MortalObserve
         userList.setAdapter(userAdapter);
         userList.setLayoutManager(new LinearLayoutManager(this));
 
-        api.listUsers((fetchedUsers) -> {
+        api.listUsers(app.userInfo.getGroupId(), (fetchedUsers) -> {
             app.users = fetchedUsers;
             userAdapter.updateUsers(fetchedUsers, app.mqtt.getStatuses());
             // Services are protected against starting twice internally

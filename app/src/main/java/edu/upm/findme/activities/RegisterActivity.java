@@ -64,7 +64,13 @@ public class RegisterActivity extends AppCompatActivity implements ApiClient.Fai
     }
 
     void jumpToNextActivity() {
-        Intent intent = new Intent(this, GroupsActivity.class);
+        Intent intent;
+
+        if (app.userInfo.isGroupIdSet())
+            intent = new Intent(this, MenuActivity.class);
+        else
+            intent = new Intent(this, GroupsActivity.class);
+
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
