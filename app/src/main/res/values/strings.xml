@@ -16,4 +16,6 @@
     <string name="groups">Groups</string>
     <string name="leave_group">Leave group</string>
     <string name="user_not_live">User is not live</string>
+    <string name="select_from_the_following_groups">Select from the following groups:</string>
+    <string name="add_new_group">Add new group</string>
 </resources>

@@ -2,6 +2,7 @@ package edu.upm.findme.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -57,5 +58,9 @@ public class GroupsActivity extends AppCompatActivity implements ApiClient.Failu
                 finish();
             }
         });
+    }
+
+    public void onBtnNewGroup(View view) {
+        Toast.makeText(this, "New group", Toast.LENGTH_SHORT).show();
     }
 }
